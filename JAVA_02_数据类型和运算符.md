@@ -194,6 +194,7 @@
 
       * boolean类型有两个常量值，true和false，在内存中占一位（不是一个字节），不可以使用 0 或非 0 的整数替代 true 和 false ，这点和C语言不同。
       * **Less is More！！请不要这样写：if ( flag == true )，只有新手才那么写。关键也很容易写错成if(flag=true)，这样就变成赋值flag 为true而不是判断！老鸟的写法是if ( flag )或者if ( !flag)**
+   
 8. 运算符（operator）
 
    分类
@@ -346,3 +347,103 @@
       * 逻辑与、逻辑或、逻辑非的优先级一定要熟悉！***（逻辑非>逻辑与>逻辑或）***。如：
    
         a||b&&c的运算结果是：a||(b&&c)，而不是(a||b)&&c 
+   
+9. 类型转换
+
+   1. 自动类型转换
+
+      * 指的是容量小的数据类型可以自动转换成容量大的数据类型（**容量大小是指表示范围**）
+
+      * 实线表述无数据丢失的自动类型转换，虚线表示在转换时可能会有精度的损失。
+
+        ![alt 图片](https://www.sxt.cn/360shop/Public/admin/UEditor/20170516/1494906265693111.png)
+
+      * 整型常量可以直接赋值给byte、short、char等类型变量，而不需要进行强制类型转换，只要不超出其表述范围即可。
+
+        ```java
+        /**
+         * 测试类型转换
+         * @author zsk
+         *
+         */
+        public class TestTypeConvert {
+        	public static void main(String[] args) {
+        		int a = 324;
+        		long b = a;
+        		double d = b;
+        		//a = b;  //报错，long类型不能转换成int
+        		//long e = 3.23F;  //报错，float不能转换成long
+        		float f = 23432L;
+        		
+        		//特例
+        		byte b2 = 123;  //123属于int类型，但是byte可以表述-127~127，所以可以转换
+        	}
+        }
+        
+        ```
+
+   2. 强制类型转换
+
+      * 又被称为造型，用于量式的转换一个数值的类型。
+
+      * 运算符“()”中的type表示将值var想要转换成的目标数据类型
+
+        ```java
+        double x = 3.14;
+        int nx = (int)x;  //值为3，直接舍掉小数部分
+        char c = 'a';
+        int d = c + 1;
+        System.out.println((char)d);  //输出为b
+        ```
+
+   3. 基本类型转化时常见错误和问题
+
+      * 操作比较大的数时，要留意是否溢出
+
+      * 不要命名名字为l的变量，l容易和1混淆。long类型使用大写L不要用小写
+
+        ```java
+        int money = 1000000000; //10亿
+        int years = 20;
+        //返回的total是负数，超过了int的范围
+        int total = money*years;
+        System.out.println("total="+total);  //输出为负数
+        //返回的total仍然是负数。默认是int，因此结果会转成int值，再转成long。但是已经发生了数据丢失
+        long total1 = money*years; 
+        System.out.println("total1="+total1);  //输出为负数
+        //返回的total2正确:先将一个因子变成long，整个表达式发生提升。全部用long来计算。
+        long total2 = money*((long)years); 
+        System.out.println("total2="+total2);
+        ```
+
+10. 简单的键盘输入与输出
+
+    * Scanner
+
+      ```java
+      import java.util.Scanner;
+      
+      /**
+       * 测试Scanner
+       * @author zsk
+       *
+       */
+      public class TestScanner {
+      	public static void main(String[] args) {
+      		Scanner scanner = new Scanner(System.in);
+      		System.out.println("请输入名字：");
+      		String name = scanner.nextLine();
+      		System.out.println("请输入你的爱好：");
+      		String favor = scanner.nextLine();
+      		System.out.println("请输入你的年龄");
+      		int age = scanner.nextInt();
+      		
+      		System.out.println("##########");
+      		System.out.println(name);
+      		System.out.println(favor);
+      		System.out.println(age);
+      	}
+      }
+      ```
+
+      
