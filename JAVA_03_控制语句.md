@@ -96,4 +96,129 @@
 
      **注**：条件运算符有时候可用于代替if-else，即x ? y : z
 
-     
+   * **if-else if-else多选择结构**
+   
+     ```
+     if(布尔表达式1){
+     	语句块1；
+     }else if(布尔表达式2){
+     		语句块2；
+     }……
+     else{
+     	语句块3；
+     }
+     ```
+   
+     ```java
+     /**
+      * 测试ifelseifelse多选择
+      * @author zsk
+      *
+      */
+     public class TestIfElseifElse {
+     	public static void main(String[] args) {
+     		int age = (int)(100 * Math.random());
+     		System.out.print("年龄是" + age + "，属于");
+     		if(age < 15) {
+     			System.out.println("儿童，喜欢玩！");
+     		}else if (age < 25) {
+     			System.out.println("青年，要学习！");
+     		}else if (age <45) {
+     			System.out.println("中年，要工作！");
+     		}else if (age < 65) {
+     			System.out.println("中老年，要补钙！");
+     		}else if (age < 85) {
+     			System.out.println("老年，多运动！");
+     		}else {
+     			System.out.println("老寿星，古来稀！");
+     		}
+     	}
+     }
+     ```
+   
+   * **switch多选择结构**
+   
+     ```
+     switch(表达式){
+     case 值1：
+     	语句1；
+     	[break];  //可选，一般都会写
+     case 值2：
+     	语句2；
+     	[break]；
+     	…… …… ……
+     [default:
+     默认语句]；
+     }
+     ```
+   
+     ​    switch语句会根据表达式的值从相匹配的case标签处开始执行，**一直执行到break语句处或者是switch语句的末尾**。如果表达式的值与任一case值不匹配，则进入default语句(如果存在default语句的情况)。
+   
+     ​    **注意**，当布尔表达式是**等值判断**的情况，可以使用if-else if-else多选择结构或者switch结构，如果布尔表达式**区间判断**的情况，则只能使用if-else if-else多选择结构。
+   
+     ```java
+     /**
+      * 测试switch语句
+      * @author zsk
+      *
+      */
+     public class TestSwitch {
+     	public static void main(String[] args) {
+     		char c = 'a';
+     		int rand = (int)(26 * Math.random());
+     		char c2 = (char)(c + rand);
+     		System.out.println(c2 + ":");
+     		switch(c2) {
+     		case 'a':
+     		case 'e':
+     		case 'i':
+     		case 'o':
+     		case 'u':
+     			System.out.println("元音");
+     			break;
+     		case 'y':
+     		case 'w':
+     			System.out.println("半元音");
+     		default:
+     			System.out.println("辅音");
+     		}
+     	}
+     }
+     ```
+   
+3. 循环结构
+
+   * 循环结构分为两大类：一类是当型；一类是直到型。
+
+   1. while循环
+
+      ​	在循环开始时，会计算一次“布尔表达式”的值，若条件为真，执行循环体。对于后来每一次的循环，都会重新计算一次。
+
+      ```
+      while(布尔表达式){
+      	循环体
+      }
+      ```
+
+      ```java
+      /**
+       * 测试while循环
+       * @author zsk
+       *
+       */
+      public class TestWhile {
+      	public static void main(String[] args) {
+      		//计算1+2+3+4...+100累加的和
+      		int i = 1;
+      		int sum = 0;
+      		while(i <= 100) {
+      			sum = sum + i;
+      			i++;
+      		}
+      		
+      		System.out.println(sum);
+      	}
+      }
+      ```
+
+      
