@@ -190,7 +190,7 @@
 
    * 循环结构分为两大类：一类是当型；一类是直到型。
 
-   1. while循环
+   1. **while循环**
 
       ​	在循环开始时，会计算一次“布尔表达式”的值，若条件为真，执行循环体。对于后来每一次的循环，都会重新计算一次。
 
@@ -221,4 +221,99 @@
       }
       ```
 
+   2. **for循环**
+   
+      ​	for循环语句是支持迭代的一种通用结构，是最有效、最灵活的循环结构。
+   
+          ```java
+      for (初始表达式; 布尔表达式; 迭代因子) {
+            循环体;
+      }
+          ```
+   
+      ​	Java里能用到逗号运算符的地方屈指可数，其中一处就是for循环的控制表达式。在控制表达式的初始化和步进控制部分，我们可以使用一系列由逗号分隔的表达式，而且那些表达式均会独立执行。
+   
+      ```java
+      public class Test11 {
+          public static void main(String[] args) { 
+              for(int i = 1, j = i + 10; i < 5; i++, j = i * 2) {
+                  System.out.println("i= " + i + " j= " + j); 
+              } 
+          }
+      }
+      ```
+   
+      ```java
+      /**
+       * 测试for循环
+       * @author zsk
+       *
+       */
+      public class TestFor{
+          public static void main(String args[]) {
+              int sum = 0;
+              //1.求1-100之间的累加和
+              for (int i = 0; i <= 100; i++) {
+                  sum += i;
+              }
+              System.out.println("Sum= " + sum);
+              //2.循环输出9-1之间的数
+              for(int i=9;i>0;i--){
+                  System.out.print(i+"、");
+              }
+              System.out.println();
+              //3.输出90-1之间能被3整除的数
+              for(int i=90;i>0;i-=3){
+                  System.out.print(i+"、");
+              }
+              System.out.println();
+          }
+      }
+      ```
+   
+      * 初始化部分可设置任意数量的定义，但都属于同一类型。
+      * **约定**：只在for语句的控制表达式中写入与循环变量初始化，条件判断和迭代因子相关的表达式
+      * for语句的初始化部分声明的变量，其作用域为整个for循环体，不能在循环外部使用该变量。
+   
+   3. 嵌套循环
+   
+      在一个循环语句内部再嵌套一个或多个循环，称为嵌套循环
+   
+      ```java
+      /**
+       * 测试嵌套循环
+       * @author zsk
+       *
+       */
+      public class Testcycle {
+      	public static void main(String[] args) {
+      		for(int i = 1; i <= 5; i++) {
+      			for(int j = 1; j <=5; j++) {
+      				System.out.print(i + "\t");
+      			}
+      			System.out.println();
+      		}
+      	}
+      }
+      ```
+   
+      ```java
+      /**
+       * 测试乘法口诀表
+       * @author zsk
+       *
+       */
+      public class TestMultiply {
+      	public static void main(String[] args) {
+      		
+      		for(int i = 1; i < 10; i++) {
+      			for(int j = 1; j <= i; j++) {
+      				System.out.print(j + "*" + i + "=" + (j*i) + "\t");
+      			}
+      			System.out.println();
+      		}
+      	}
+      }
+      ```
+   
       
