@@ -97,7 +97,7 @@
      **注**：条件运算符有时候可用于代替if-else，即x ? y : z
 
    * **if-else if-else多选择结构**
-   
+
      ```
      if(布尔表达式1){
      	语句块1；
@@ -108,7 +108,7 @@
      	语句块3；
      }
      ```
-   
+
      ```java
      /**
       * 测试ifelseifelse多选择
@@ -135,9 +135,9 @@
      	}
      }
      ```
-   
+
    * **switch多选择结构**
-   
+
      ```
      switch(表达式){
      case 值1：
@@ -151,11 +151,11 @@
      默认语句]；
      }
      ```
-   
+
      ​    switch语句会根据表达式的值从相匹配的case标签处开始执行，**一直执行到break语句处或者是switch语句的末尾**。如果表达式的值与任一case值不匹配，则进入default语句(如果存在default语句的情况)。
-   
+
      ​    **注意**，当布尔表达式是**等值判断**的情况，可以使用if-else if-else多选择结构或者switch结构，如果布尔表达式**区间判断**的情况，则只能使用if-else if-else多选择结构。
-   
+
      ```java
      /**
       * 测试switch语句
@@ -185,7 +185,7 @@
      	}
      }
      ```
-   
+
 3. 循环结构
 
    * 循环结构分为两大类：一类是当型；一类是直到型。
@@ -222,17 +222,20 @@
       ```
 
    2. **for循环**
-   
+
       ​	for循环语句是支持迭代的一种通用结构，是最有效、最灵活的循环结构。
-   
+
           ```java
       for (初始表达式; 布尔表达式; 迭代因子) {
             循环体;
       }
+
           ```
-   
+      
+          ```
+
       ​	Java里能用到逗号运算符的地方屈指可数，其中一处就是for循环的控制表达式。在控制表达式的初始化和步进控制部分，我们可以使用一系列由逗号分隔的表达式，而且那些表达式均会独立执行。
-   
+
       ```java
       public class Test11 {
           public static void main(String[] args) { 
@@ -242,7 +245,7 @@
           }
       }
       ```
-   
+
       ```java
       /**
        * 测试for循环
@@ -270,15 +273,15 @@
           }
       }
       ```
-   
+
       * 初始化部分可设置任意数量的定义，但都属于同一类型。
       * **约定**：只在for语句的控制表达式中写入与循环变量初始化，条件判断和迭代因子相关的表达式
       * for语句的初始化部分声明的变量，其作用域为整个for循环体，不能在循环外部使用该变量。
-   
-   3. 嵌套循环
-   
+
+   3. **嵌套循环**
+
       在一个循环语句内部再嵌套一个或多个循环，称为嵌套循环
-   
+
       ```java
       /**
        * 测试嵌套循环
@@ -296,7 +299,7 @@
       	}
       }
       ```
-   
+
       ```java
       /**
        * 测试乘法口诀表
@@ -315,5 +318,206 @@
       	}
       }
       ```
+
+   4. **break语句和continue语句**
+
+      * 在任何循环语句的主体部分，均可使用break控制循环的流程。break用于**强行退出循环**，不执行循环中的剩余语句。
+
+        ```java
+        /**
+         * 测试break语句
+         * @author zsk
+         *
+         */
+        public class TestBreak {
+        	public static void main(String[] args) {
+        		int total = 0;//定义计数器
+                System.out.println("Begin");
+                while (true) {
+                    total++;//每循环一次计数器加1
+                    int i = (int) Math.round(100 * Math.random());
+                    //当i等于88时，退出循环
+                    if (i == 88) {
+                        break;
+                    }
+                }
+                //输出循环的次数
+                System.out.println("Game over， used " + total + " times.");
+        	}
+        }
+        ```
+
+      *  continue 语句用在循环语句体中，用于终止某次循环过程，即**跳过循环体中尚未执行的语句，接着进行下一次是否执行循环的判定**。
+
+        ```java
+        /**
+         * 测试continue语句
+         * @author zsk
+         *
+         */
+        public class TestContinue {
+        	public static void main(String[] args) {
+        		int count = 0;//定义计数器
+        		for(int i = 100; i <= 150; i++){
+                    //如果是3的倍数，跳过本次循环，继续进行下一次
+        			if(i % 3 == 0){	
+        				continue;
+        			}
+        			System.out.print(i + ",");
+        			count++;
+        			if(count % 5 == 0){
+        				System.out.println();
+        			}
+        		}
+        	}
+        }
+        ```
+
+   5. **带标签的break和continue语句**
+
+      “标签”是指后面跟一个冒号的标识符，例如：“label:”。对Java来说唯一用到标签的地方是在循环语句之前。而在循环之前设置标签的唯一理由是：我们希望在其中嵌套另一个循环，由于break和continue关键字通常只中断当前循环，但若随同标签使用，它们就会中断到存在标签的地方。
+
+      ```java
+      /**
+       * 测试带标签的continue
+       * @author zsk
+       *
+       */
+      public class TestLabelContinue {
+      	public static void main(String[] args) {
+      		outer: for (int i = 101; i < 150; i++) {
+                  for (int j = 2; j < i / 2; j++) {
+                      if (i % j == 0){
+                          continue outer;
+                      }
+                  }
+                  System.out.print(i + "  ");
+              }
+      	}
+      }
+      ```
+
+4. 语句块
+
+   ​    语句块(有时叫做复合语句)，是用花括号扩起的任意数量的简单Java语句。块确定了局部变量的作用域。块中的程序代码，作为一个整体，是要被一起执行的。
+
+5. 方法
+
+   ​    方法就是一段用来完成特定功能的代码片段，类似于其它语言的函数。
+
+   ​    方法用于定义该类或该类的实例的行为特征和功能实现。 方法是类和对象行为特征的抽象。方法很类似于面向过程中的函数。面向过程中，函数是最基本单位，整个程序由一个个函数调用组成。面向对象中，整个程序的基本单位是类，方法是从属于类和对象的。
+
+   **方法声明格式**
+
+   > [修饰符1 修饰符2 ……]	返回值类型	方法名（形参列表）{
+   >
+   > ​	Java语句；
+   >
+   > }
+
+   **方法的调用方式**
+
+   ​	对象名.方法名（实参列表）
+
+   ​	**注**：如无返回值，必须指定为void
+
+   ```java
+   public class Test20 {
+       /** main方法：程序的入口 */
+       public static void main(String[] args) {
+           int num1 = 10;
+           int num2 = 20;
+           //调用求和的方法：将num1与num2的值传给add方法中的n1与n2
+           // 求完和后将结果返回，用sum接收结果
+           int sum = add(num1, num2);
+           System.out.println("sum = " + sum);//输出：sum = 30
+           //调用打印的方法：该方法没有返回值
+           print();
+       }
+       /** 求和的方法 */
+       public static int add(int n1, int n2) {
+           int sum = n1 + n2;
+           return sum;//使用return返回计算的结果
+       }
+       /** 打印的方法 */
+       public static void print() {
+           System.out.println("北京尚学堂...");
+       }
+   }
+   ```
+
+   **注意事项**
+
+    	1. 实参的数目、数据类型和次序必须和所调用的方法声明的形式参数列表匹配。
+    	2. return 语句终止方法的运行并指定要返回的数据。
+    	3. Java中进行方法调用中传递参数时，遵循值传递的原则(传递的都是数据的副本)。
+    	4. 基本类型传递的是该数据值的copy值。
+    	5. 引用类型传递的是该对象引用的copy值，但指向的是同一个对象。
+
+6. 方法的重载(overload)
+
+   ​       方法的重载是指一个类中可以定义多个方法名相同，但参数不同的方法。 调用时，会根据不同的参数自动匹配对应的方法。
+
+   * **注意**：重载的方法，实际是完全不同的方法，只是名称相同而已!
+
+     ​      构成方法重载的条件：
+
+     1. 不同的含义：形参类型、形参个数、形参顺序不同
+
+              2. 只有返回值不同不构成方法的重载
+              3. 只有形参的名称不同，不构成方法的重载
+
+   ```java
+   /**
+    * 测试重载
+    * @author zsk
+    *
+    */
+   public class TestOverload {
+   	public static void main(String[] args) {
+   		 System.out.println(add(3, 5));// 8
+   	        System.out.println(add(3, 5, 10));// 18
+   	        System.out.println(add(3.0, 5));// 8.0
+   	        System.out.println(add(3, 5.0));// 8.0
+   	        // 我们已经见过的方法的重载
+   	        System.out.println();// 0个参数
+   	        System.out.println(1);// 参数是1个int
+   	        System.out.println(3.0);// 参数是1个double
+   	}
+   	
+   	/** 求和的方法 */
+       public static int add(int n1, int n2) {
+           int sum = n1 + n2;
+           return sum;
+       }
+       // 方法名相同，参数个数不同，构成重载
+       public static int add(int n1, int n2, int n3) {
+           int sum = n1 + n2 + n3;
+           return sum;
+       }
+       // 方法名相同，参数类型不同，构成重载
+       public static double add(double n1, int n2) {
+           double sum = n1 + n2;
+           return sum;
+       }
+       // 方法名相同，参数顺序不同，构成重载
+       public static double add(int n1, double n2) {
+           double sum = n1 + n2;
+           return sum;
+       }
+       //编译错误：只有返回值不同，不构成方法的重载
+       public static double add(int n1, int n2) {
+           double sum = n1 + n2;
+           return sum;
+       }
+       //编译错误：只有参数名称不同，不构成方法的重载
+       public static int add(int n2, int n1) {
+           double sum = n1 + n2;         
+           return sum;
+       }  
+   }
+   ```
+
+7. 递归结构
+
    
-      
