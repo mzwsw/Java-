@@ -538,7 +538,7 @@
 
    ​      在要求高性能的情况下尽量避免使用递归，递归调用既花时间又耗内存。
 
-       ```java
+   ```java
    public class TestRecu {
        public static void main(String[] args) {
            long d1 = System.currentTimeMillis();  
@@ -555,6 +555,4 @@
            }
        }
    }
-       ```
-
-   
+   ```
