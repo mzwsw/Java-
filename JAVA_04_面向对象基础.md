@@ -334,4 +334,178 @@
 
 9. static关键字
 
+   ​		在类中，用static声明的成员变量为静态成员变量，也成为类变量。生命周期和类相同，整个应用程序执行期间都有效。
+   
+   ​		核心要点：1. static修饰的成员变量和方法，从属于类
+   
+   ​							2. 普通变量和方法从属于对象
+   
+       /**
+       *测试static关键字的用法
+       * @author zsk
+       *
+       */
+         public class User2 {
+         int id; // id
+         String name; // 账户名
+         String pwd; // 密码
+       
+         static String company = "北京腾讯"; // 公司名称
+       
+         public User2(int id, String name) {
+             this.id = id;
+             this.name = name;
+         }
+       
+         public void login() {
+             printCompany();  //普通方法可以调用静态成员
+             System.out.println(company); 
+             System.out.println("登录：" + name);
+         }
+       
+         public static void printCompany() {
+         //         login();//调用非静态成员，编译就会报错
+             System.out.println(company);
+         }
+       
+         public static void main(String[] args) {
+             User2 u = new User2(101, "高小七");
+             User2.printCompany();
+             User2.company = "北京阿里";
+             User2.printCompany();
+         }
+         }
+   
+10. 静态初始化块
+
+        ​		构造方法用于对象的初始化！静态初始化块，用于类的初始化操作！在静态初始化块中不能直接访问非static成员。
+
+        **注意事项**：
+
+        ​		静态初始化块执行顺序（学完继承再看）：
+
+      			1. 上溯到Object类，先执行Object的静态初始化块，再向下执行子类的静态初始化块，直到我们的静态初始化块为止
+         			2. 构造方法执行顺序和上面顺序一样。
+
+        ```java
+            static {
+                System.out.println("执行类的初始化工作");
+                company = "北京阿里";
+                printCompany();
+            } 
+        ```
+
+11. 参数传值机制
+
+       ​	Java中，方法中所有参数都是“值传递”，也就是“传递的是值的副本”。复印件改变不会影响原件。
+
+       * **基本数据类型参数的传值**
+
+         传递的是值的副本。副本改变不会影响原件。
+
+       * **引用类型参数的传值**
+
+         传递的是值的副本。但是引用类型指的是“对象的地址”。因此，副本和原参数都指向了同一个“地址”，改变“副本指向地址对象的值，也意味着原参数指向对象的值也发生了改变”。
+
+       ```java
+       /**
+        * 测试参数传递
+        * @author zsk	
+        *
+        */
+       public class User4 {
+       	int id;
+       	String name;
+       	String pwd;
+       	
+       	public User4(int id, String name) {
+       		this.id = id;
+       		this.name = name;
+       	}
+       	
+       	public void testParameterTransfer01(User4 u) {
+       		u.name = "zsk";
+       	}
+       	
+       	public void testParameterTransfer02(User4 u) {
+       		u = new User4(200,"zzz");
+       	}
+       	
+       	public static void main(String[] args) {
+       		User4 u1 = new User4(100, "sss");
+       		
+       		u1.testParameterTransfer01(u1);  //指向同一个对象，会发生改变
+       		System.out.println(u1.name);
+       		
+       		u1.testParameterTransfer02(u1);  //u1地址穿给u，新对象地址赋给u，而u1不变
+       		System.out.println(u1.name);
+       	}
+       }
+       ```
+
+12. 包
+
+       ​	包机制是Java中**管理类**的重要手段。开发中，我们会遇到大量同名的类，通过包我们很容易对解决类重名的问题，也可以实现对类的有效管理。包对于类，相当于文件夹对于文件的作用。
+
+13. package
+
+       package的使用有**两个要点**：
+
+       1. 通常是类的第一句非注释性语句。
+       2. 包名：域名倒着写即可，再加上模块名，便于内部管理类。
+    
+    **注意事项**：
+    
+    1. 写程序时都要使用包。
+    2. com.gao和com.gao.car，这两个包没有包含关系，是两个完全独立的包。
+    
+    ---
+    
+    * **JDK中的主要包**
+    
+      java.long	包含一些java语言的核心类，如String、Math，提供常用功能。可以不导入直接使用。
+    
+      java.awt	包含了构成抽象窗口工具集的多个类
+    
+      java.net	包含执行与网络相关的操作的类
+    
+      java.io	包含能提供多种输入/输出功能的类
+    
+      java.util	包含一些实用工具类。
+    
+    * **导入类import**
+    
+      **注意**：
+    
+         1. Java会默认导入java.long包下所有的类，因此这些类我们可以直接使用。
+    
+         2. 如果导入两个同名的类，只能用包名+类名来显式调用相关类。
+    
+            ```java
+            import java.sql.Date;
+            import java.util.*;//导入该包下所有的类。会降低编译速度，但不会降低运行速度。
+             
+            public class Test{
+                public static void main(String[] args) {
+                    //这里指的是java.sql.Date
+                    Date now; 
+                    //java.util.Date因为和java.sql.Date类同名，需要完整路径
+                    java.util.Date  now2 = new java.util.Date();
+                    System.out.println(now2);      
+                    //java.util包的非同名类不需要完整路径
+                    Scanner input = new Scanner(System.in);    
+                }
+            }
+            ```
+    
+    * 静态导入
+    
+      ​	作用是用于导入指定类的静态属性，则可以直接使用静态属性。
+    
+      ```java
+      //以下两种静态导入的方式二选一即可
+      import static java.lang.Math.*;//导入Math类的所有静态属性
+      import static java.lang.Math.PI;//导入Math类的PI属性
+      ```
+    
       

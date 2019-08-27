@@ -225,32 +225,27 @@
 
       ​	for循环语句是支持迭代的一种通用结构，是最有效、最灵活的循环结构。
 
-          ```java
       for (初始表达式; 布尔表达式; 迭代因子) {
             循环体;
       }
-
-          ```
-          
-          ```
-
-      ​	Java里能用到逗号运算符的地方屈指可数，其中一处就是for循环的控制表达式。在控制表达式的初始化和步进控制部分，我们可以使用一系列由逗号分隔的表达式，而且那些表达式均会独立执行。
-
+      
+​	Java里能用到逗号运算符的地方屈指可数，其中一处就是for循环的控制表达式。在控制表达式的初始化和步进控制部分，我们可以使用一系列由逗号分隔的表达式，而且那些表达式均会独立执行。
+      
       ```java
       public class Test11 {
-          public static void main(String[] args) { 
+    public static void main(String[] args) { 
               for(int i = 1, j = i + 10; i < 5; i++, j = i * 2) {
-                  System.out.println("i= " + i + " j= " + j); 
+            System.out.println("i= " + i + " j= " + j); 
               } 
           }
       }
       ```
-
+      
       ```java
       /**
        * 测试for循环
        * @author zsk
-       *
+ *
        */
       public class TestFor{
           public static void main(String args[]) {
@@ -273,20 +268,20 @@
           }
       }
       ```
-
+      
       * 初始化部分可设置任意数量的定义，但都属于同一类型。
       * **约定**：只在for语句的控制表达式中写入与循环变量初始化，条件判断和迭代因子相关的表达式
       * for语句的初始化部分声明的变量，其作用域为整个for循环体，不能在循环外部使用该变量。
-
-   3. **嵌套循环**
-
+      
+3. **嵌套循环**
+   
       在一个循环语句内部再嵌套一个或多个循环，称为嵌套循环
-
-      ```java
+   
+   ```java
       /**
-       * 测试嵌套循环
+    * 测试嵌套循环
        * @author zsk
-       *
+    *
        */
       public class Testcycle {
       	public static void main(String[] args) {
@@ -299,12 +294,12 @@
       	}
       }
       ```
-
+   
       ```java
       /**
        * 测试乘法口诀表
        * @author zsk
-       *
+    *
        */
       public class TestMultiply {
       	public static void main(String[] args) {
@@ -318,16 +313,16 @@
       	}
       }
       ```
-
+   
    4. **break语句和continue语句**
-
+   
       * 在任何循环语句的主体部分，均可使用break控制循环的流程。break用于**强行退出循环**，不执行循环中的剩余语句。
-
-        ```java
+   
+     ```java
         /**
-         * 测试break语句
+      * 测试break语句
          * @author zsk
-         *
+      *
          */
         public class TestBreak {
         	public static void main(String[] args) {
@@ -346,14 +341,14 @@
         	}
         }
         ```
-
+   
       *  continue 语句用在循环语句体中，用于终止某次循环过程，即**跳过循环体中尚未执行的语句，接着进行下一次是否执行循环的判定**。
-
+   
         ```java
         /**
-         * 测试continue语句
+      * 测试continue语句
          * @author zsk
-         *
+      *
          */
         public class TestContinue {
         	public static void main(String[] args) {
@@ -372,16 +367,16 @@
         	}
         }
         ```
-
+   
    5. **带标签的break和continue语句**
-
+   
       “标签”是指后面跟一个冒号的标识符，例如：“label:”。对Java来说唯一用到标签的地方是在循环语句之前。而在循环之前设置标签的唯一理由是：我们希望在其中嵌套另一个循环，由于break和continue关键字通常只中断当前循环，但若随同标签使用，它们就会中断到存在标签的地方。
-
-      ```java
+   
+   ```java
       /**
-       * 测试带标签的continue
+    * 测试带标签的continue
        * @author zsk
-       *
+    *
        */
       public class TestLabelContinue {
       	public static void main(String[] args) {
@@ -396,7 +391,7 @@
       	}
       }
       ```
-
+   
 4. 语句块
 
    ​    语句块(有时叫做复合语句)，是用花括号扩起的任意数量的简单Java语句。块确定了局部变量的作用域。块中的程序代码，作为一个整体，是要被一起执行的。
