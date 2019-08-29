@@ -63,10 +63,11 @@
    
       ​	**三个要点**：
    
-          1. 	“==”：方法名、形参列表相同
-             2. 	“<=“：返回值类型和声明类型，子类小于等于父类
-             3. 	“>=”：访问权限，子类大于父类。
-   
+      * "=="：方法名、形参列表相同。
+      
+      			* “<=”：返回值类型和声明类型，子类小于父类
+   			* “>=”：访问权限，子类大于父类
+      
       ```java
       package cn.sxt.oo;
       
@@ -203,7 +204,7 @@
 
    ​	使用super调用普通方法，语句没有位置限制，可以在子类中随便调用。
 
-   ​	**若是构造方法的第一行没有显式的调用super(...)或者this(...)，那么Java默认都会调用super()，含义是调用父类的无参数构造方法。**这的super()可以省略。
+   ​	**若是构造方法的第一行没有显式的调用super(...)或者this(...)，那么Java默认都会调用super()，含义是调用父类的无参数构造方法**。这的super()可以省略。
 
    ```java
    public class TestSuper01 {
@@ -287,3 +288,177 @@
       2. **default** 表示没有修饰符修饰，只有同一个包的类能访问
       3. **protected** 表示可以被同一个包的类以及其他包中的子类访问
       4. **public** 表示可以被该项目的所有包中的所有类访问
+      
+   3. **封装的使用细节**
+   
+      **类的属性的处理**
+   
+        1. 一般使用private访问权限
+   
+        2. 提供相应的get/set方法来访问相关属性，这些方法通常是public修饰的，以提高对属性的赋值与读取操作（boolean变量的get方法是is开头！！）。
+   
+        3. 一些只用于本类的辅助性方法可以用private修饰，希望其他类调用的方法用public修饰。
+   
+           ```java
+           public class Person5 {
+           	public static void main(String[] args) {
+           		Boy b = new Boy();
+           //		b.name = "zsk";    编译错误，变量不可见
+           		b.setName("zsk");
+           		b.setAge(-45);
+           		System.out.println(b);
+           		
+           		Boy b1 = new Boy("llb",14);
+           		System.out.println(b1);
+           	}
+           }
+           
+           
+           class Boy {
+           	private String name;
+           	private int age;
+           	
+           	public Boy() {
+           		
+           	}
+           	
+           	public Boy(String name, int age) {
+           		this.name = name;
+           		//构造方法中不要直接赋值，应该调用setAge方法
+           		setAge(age);
+           	}
+           
+           	public String getName() {
+           		return name;
+           	}
+           
+           	public void setName(String name) {
+           		this.name = name;
+           	}
+           
+           	public int getAge() {
+           		return age;
+           	}
+           
+           	public void setAge(int age) {
+           		//在赋值之前可以先进行判断
+           		if(age < 130 && age >=1) {
+           			this.age = age;
+           		}else {
+           			System.out.println("请输入正确的年龄！");
+           		}
+           	}
+           	
+           	@Override
+           	public String toString() {
+           		return "Person [name =" + name + ", age =" + age + "]";
+           	}
+           }
+           ```
+   
+5. 多态
+
+   ​		多态指的是同一个方法调用，由于对象不同可能会有不同的行为。
+
+   ​		多态的要点：
+
+   * 多态是方法的多态，不是属性的多态。
+   * 多态的存在要有**3个必要条件：继承，方法重写，父类引用指向子类对象**。
+   * 父类引用指向子类对象后，用该父类引用调用子类重写的方法，此时多态就出现了。
+
+   ```java
+   /**
+    * 测试多态
+    * @author zsk
+    *
+    */
+   public class TestPolym {
+   	public static void main(String[] args) {
+   		Animal a = new Animal();
+   		animalCry(a);
+   		
+   		Dog d = new Dog();
+   		//传的具体是哪一类就调用哪一个类的方法。大大提高了程序的可扩展性
+   		animalCry(d);
+   		animalCry(new Cat());
+   	}
+   	
+   	//有了多态，只需要让增加的这个类继承Animal类就可以了
+   	static void animalCry(Animal a) {  
+   		a.shout();
+   	}
+   	
+   	/*如果没有多态，这里需要写很多重载的方法。
+   	 * 每增加一种动物，就需要重载一种动物的叫法。
+   	 * static void animalCry(Dog d){
+   	 * 		d.shout();
+   	 * }
+   	 * static void animalCry(Cat c){
+   	 * 		c.shout();
+   	 * }
+   	 */
+   }
+   
+   
+   class Animal {
+       public void shout() {
+           System.out.println("叫了一声！");
+       }
+   }
+   class Dog extends Animal {
+       public void shout() {
+           System.out.println("旺旺旺！");
+       }
+       public void seeDoor() {
+           System.out.println("看门中....");
+       }
+   }
+   class Cat extends Animal {
+       public void shout() {
+           System.out.println("喵喵喵喵！");
+       }
+   }
+   ```
+
+   ​		上例是多态最常见的一种方法，即父类引用做方法的形参，实参可以是任意的子类对象，可以通过不同的子类对象实现不同的行为方式。
+   
+6. 对象的转型
+
+   ​		父类引用指向子类对象，这个过程称为向上转型，属于自动类型转换。
+
+   ​		向上转型后的父类引用变量只能调用它编译类型的方法，不能调用它运行时类型的方法。这时，我们需要进行强制类型转换，称之为向下转型。
+
+   ```java
+   public class TestCasting {
+       public static void main(String[] args) {
+           Object obj = new String("我在学JAVA"); // 向上可以自动转型
+           // obj.charAt(0) 无法调用。编译器认为obj是Object类型而不是String类型
+           /* 编写程序时，如果想调用运行时类型的方法，只能进行强制类型转换。
+            * 不然通不过编译器的检查。 */
+           String str = (String) obj; // 向下转型
+           System.out.println(str.charAt(0)); // 位于0索引位置的字符
+           System.out.println(obj == str); // true.他们俩运行时是同一个对象
+       }
+   }
+   ```
+
+   ​		在向下转型过程中，必须将引用变量转成真实的子类类型（运行时类型），否则会出现类型转换异常ClassCastException。
+
+   ```java
+   public class TestCasting2 {
+       public static void main(String[] args) {
+           Object obj = new String("我在学JAVA");
+           //真实的子类类型是String，但是此处向下转型为StringBuffer
+           StringBuffer str = (StringBuffer) obj;
+           System.out.println(str.charAt(0));
+       }
+   }
+   ```
+
+7. final关键字
+
+   **作用**：
+
+   * 修饰变量：即常量，一旦赋了初值，不能被重新赋值。
+   * 修饰方法：该方法不可被子类重写。但是可以被重载。
+   * 修饰类：修饰的类不能被继承。比如：Math、String等。
