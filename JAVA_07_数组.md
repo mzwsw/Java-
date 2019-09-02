@@ -118,4 +118,116 @@
      }
      ```
 
-     
+   * 拷贝
+   
+     ​		System类里包含了一个Static void arraycopy(object src, int srcpos, object dest, int destpos, int length)方法，该方法可以将src数组里的元素赋值给dest数组，其中srcpos指定从src数组的某一个索引位置开始，length指定将src数组的多少个元素赋值给dest数组。
+   
+     ```java
+     /**
+      * 测试数组拷贝
+      * @author zsk
+      *
+      */
+     public class TestArrayCopy {
+     	public static void main(String[] args) {
+     //		testBasicCopy();
+     		String[] s = {"aa", "bb", "ee"};
+     		String[] d = { "cc", "dd"};
+     		String[] ss = insertElement(s, 2, d);
+     		for(String temp : ss) {
+     			System.out.println(temp);
+     		}
+     //		String[] s1 = removeElement(s, 2);
+     //		for(String temp:s1) {
+     //			System.out.println(temp);
+     //		}
+     //		extendRange();
+     	}
+     	
+     	public static void  testBasicCopy() {
+     		String[] s1 = {"aa", "bb", "cc", "dd", "ee"};
+     		String[] s2 = new String[10];
+     		System.arraycopy(s1, 2, s2, 6, 3);
+     		
+     		for(int i = 0; i < s2.length; i++) {
+     			System.out.println(i + "--" +s2[i]);
+     		}
+     	}
+     	
+     	//测试从数组中删除某个元素（本质上还是数组的拷贝）
+     	public static String[] removeElement(String[] s, int index) {
+     		System.arraycopy(s, index+1, s, index, s.length-index-1);
+     		s[s.length-1] = null;		
+     		return s;
+     	}
+     	
+     	//数组的扩容（本质上：先定义一个更大的数组，然后将原数组内容原封不动拷贝到新数组中）
+     	public static void extendRange() {
+     		String[] s1 = {"aa", "bb", "cc"};
+     		String[] s2 = new String[s1.length + 10];
+     		System.arraycopy(s1, 0, s2, 0, s1.length);
+     		for(String temp:s2) {
+     			System.out.println(temp);
+     		}
+     	}
+     	
+     	//数组的插入（相互拷贝）
+     	public static String[] insertElement(String[] s,int index, String[] d) {
+     		String[] ss = new String[s.length+d.length];
+     		System.arraycopy(s, 0, ss, 0, s.length);
+     		System.arraycopy(ss, index, ss, index+d.length, s.length-index);
+     		System.arraycopy(d, 0, ss, index, d.length);
+     		return ss;
+     	}
+     }
+     ```
+   
+   * java.util.Arrays类
+   
+     ​		包含了常用的数组操作：排序、查找、填充、打印等。
+   
+     * 打印
+   
+       ```java
+       Arrays.toString(a)
+       ```
+   
+     * 排序
+   
+       ```
+       Arrays.sort(a)  //从小到大排序
+       ```
+   
+     * 二分查找
+   
+       ```
+       Arrays.binarySearch(String[] a, key)
+       ```
+   
+     * 填充
+   
+       ```
+       Arrays.fill(String[] a,index1,index2,key)//将数组a中索引[index，index2）的元素替换为key
+       ```
+   
+     ```java
+     /**
+      * 测试java.util.Arrays类
+      * @author lenovo
+      *
+      */
+     public class TestArrays {
+     	public static void main(String[] args) {
+     		int[] a = {100, 20 ,3, 50, 200, 150};
+     		System.out.println(Arrays.toString(a));
+     		Arrays.sort(a);
+     		System.out.println(Arrays.toString(a));
+     		System.out.println("二分查找："+ Arrays.binarySearch(a, 3));
+     	}
+     	
+     }
+     ```
+   
+4. **多维数组**
+
+   

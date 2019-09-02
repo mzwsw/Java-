@@ -707,18 +707,65 @@
 
          **注意**
 
-         		1. 匿名内部类没有访问修饰符
-       
-        		2. 匿名内部类没有构造方法。
+         1. 匿名内部类没有访问修饰符
+         2. 匿名内部类没有构造方法。
        
     * **局部内部类**
-       
+      
          （不常见）
-
+    
 11. String
 
     * **String基础**
       		1. String类又称作不可变字符序列
-        		2. String位于java.lang包中，Java程序默认导入java.lang包下的所有类。
-        		3. Java字符串就是Unicode字符序列。
-        		4. Java没有内置的字符串类型，而是在标注Java类库中提供了一个预定义的类String，每个用双引号括起来的字符串都是String类的一个实例。
+        2. String位于java.lang包中，Java程序默认导入java.lang包下的所有类。
+        3. Java字符串就是Unicode字符序列。
+        4. Java没有内置的字符串类型，而是在标注Java类库中提供了一个预定义的类String，每个用双引号括起来的字符串都是String类的一个实例。
+        
+    * **String类常用方法**
+    
+        ```java
+        /**
+         * 测试字符串的基本用法
+         * @author zsk
+         *
+         */
+        public class TestString {
+        	public static void main(String[] args) {
+        		String s1 = "core Java";
+        		String s2 = "Core Java";
+        		System.out.println(s1.charAt(3));  //提取出下标为3的字符
+        		System.out.println(s2.length());  //字符串的长度
+        		System.out.println(s1.equals(s2));  //比较两个字符串是否相等
+        		System.out.println(s1.equalsIgnoreCase(s2));  //比较两个字符串（忽略大小写）
+        		System.out.println(s1.indexOf("Java"));   //字符串s1中是否包含Java
+        		System.out.println(s1.indexOf("apple"));  //字符串s1中是否包含apple
+        		String s = s1.replace(' ', '&');  //将s1中的空格替换成&
+        		System.out.println(s);
+        		
+        		String ss = " ";
+        		String ss1 = "How are you?";
+        		System.out.println(ss1.startsWith("How"));  //是否以How开头
+        		System.out.println(ss1.endsWith("you"));//是否以you结尾
+        		ss = ss1.substring(4);    //提取子字符串，从下标为4的开始到字符串结尾为止
+        		System.out.println(ss);
+        		ss = ss1.substring(4, 7);  //提取子字符串：下标[4,7)不包括7
+        		System.out.println(ss);
+        		ss = s1.toLowerCase();  //转小写
+        		System.out.println(ss);
+        		ss = s1.toUpperCase();  //转大写
+        		System.out.println(ss);
+        		String ss2 = " How old are you!!";
+        		ss = ss2.trim();   //去除字符串首尾的空格。注：中间的空格不能去除
+        		System.out.println(ss);
+        		System.out.println(ss2);  //String是不可变字符串，所以ss2不变
+        		
+        	}
+        }
+        ```
+    
+    * **字符串相等的判断**
+    
+        1. equals方法用来检测两个字符串内容是否相等。
+        2. 测试两个字符串除了大小写区别外是否相等，使用equalsIgnoreCase方法。
+        3. 判断字符串是否相等不要使用“==“
