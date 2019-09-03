@@ -6,9 +6,9 @@
 
      ​    	数组是相同类型数据的有序集合。数组描述的是相同类型的若干个数据，按照一定的先后次序排列组合而成。其中，每一个数据称为一个元素，每个元素可以通过一个索引（下标）来访问它们。数组的三个特点：
      
-     		1. 长度是确定的。数组一旦被创建，它的大小就是不可以改变的。
-       		2. 元素必须是相同类型，不允许出现混合类型。
-       		3. 数组类型可以是任何数据类型，包括基本类型和引用类型。
+     		* 长度是确定的。数组一旦被创建，它的大小就是不可改变的。
+     		* 元素必须是相同类型，不允许出现混合类型。
+     		* 数组类型可以是任何数据类型，包括基本类型和引用类型。
      
    * 建议：
    
@@ -27,9 +27,9 @@
 
      **注意事项**
 
-     		1. 声明的时候并没有实例化任何对象，只有在实例化数组对象是，JVM才分配空间，这时才与长度有关。
-       		2. 声明一个数组的时候并没有数组被真正创建。
-       		3. 构造一个数组，必须制定长度。
+     		* 声明的时候并没有实例化任何对象，只有在实例化数组对象时，JVM才分配空间，这是才与长度有关。
+     		* 声明一个数组的时候并没有数组被真正创建。
+     		* 构造一个数组，必须制定长度。
 
      ```java
      public class TestArray{
@@ -229,5 +229,99 @@
      ```
    
 4. **多维数组**
+
+   ​		多维数组可以看成以数组为元素的数组。
+   
+   声明
+   
+   ```java
+   //Java中多维数组的声明和初始化应该按从低维到高维的顺序进行
+   int[][] a = new int[3][];
+   a[0] = new int[2];
+   a[1] = new int[4];
+   a[2] = new int[3];
+   ```
+   
+   静态初始化
+   
+   ```java
+   int[][] a = {{1,2,3},{3,4},{3,4,5,6}};
+   ```
+   
+5. **冒泡排序**
+
+   ​		冒泡算法重复的走过要排序的数列，一次比较两个元素，如果他们的顺序错误就把他们交换过来，这样越大的元素会经过交换慢慢“浮”到数列的顶端。
+
+   ```java
+   /**
+    * 测试冒泡排序及优化算法
+    * @author zzssk
+    *
+    */
+   public class TestBubbleSort {
+   	public static void main(String[] args) {
+   		int[] values = { 3, 1, 6, 2, 9, 0, 7, 4, 5, 8 };
+   		int temp = 0;
+   		
+   		for(int i = 0; i < values.length-1; i++) {
+   			boolean flag = true;
+   			for(int j = 0; j < values.length-i-1; j++) {
+   				if(values[j] > values[j+1]) {
+   					temp = values[j];
+   					values[j] = values[j+1];
+   					values[j+1] = temp;
+   					flag = false;
+   				}
+   				System.out.println(Arrays.toString(values));
+   			}
+   			if(flag) {
+   				System.out.println("结束！！！");
+   				break;
+   			}
+   			System.out.println("#############");
+   		}
+   	}
+   }
+   ```
+
+6. **二分法查找**
+
+   ​		二分法检索（binary search）又称折半检索，基本思想是设数组中的元素从小到大有序地排放在数组中，首先将给定key值与数组中间位置上元素的关键码（key）比较，如果相等，则检索成功， 否则，若key小，则再数组前半部分中继续进行二分法检索；若key大，则在数组后半部分中继续进行二分法检索。
+
+   ```java
+   /**
+    * 测试二分检索
+    * @author zsk
+    *
+    */
+   public class TestBinarySearch {
+   	public static void main(String[] args) {
+   		int[] arr = { 30,20,50,10,80,9,7,12,100,40,8};
+           int searchWord = 10; // 所要查找的数
+           Arrays.sort(arr); //二分法查找之前，一定要对数组元素排序
+           System.out.println(Arrays.toString(arr));
+           System.out.println(searchWord+"元素的索引："+binarySearch(arr,searchWord));
+   	}
+   	
+   	public static int binarySearch(int[] arr, int value) {
+   		int low = 0;
+   		int high = arr.length-1;
+   		
+   		while(low <= high) {
+   			int mid = (low + high)/2;
+   			if (value == arr[mid]) {
+   				return mid;
+   			}
+   			if(value < arr[mid]) {
+   				high = mid-1;
+   			}
+   			if(value > arr[mid]) {
+   				low = mid+1;
+   			}
+   		}
+   		return -1;
+   	}
+   }
+   ```
 
    
