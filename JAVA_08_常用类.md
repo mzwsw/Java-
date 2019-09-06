@@ -2,18 +2,18 @@
 
 1. **包装类**
 
-    * 包装类基本知识
+   * 包装类基本知识
 
-      ​		在实际应用中经常需要将基本数据类型转化为对象，以便于操作。为了解决这个问题，Java在设计类时，为每个基本数据类型设计了一个对应的类进行代表，这样八个和基本数据类型对应的类成为包装类。
+     ​		在实际应用中经常需要将基本数据类型转化为对象，以便于操作。为了解决这个问题，Java在设计类时，为每个基本数据类型设计了一个对应的类进行代表，这样八个和基本数据类型对应的类成为包装类。
 
-      ​		这八个类名中，除了Integer和Character类以外，其他六个类的类名和基本数据类型一致，只是首字母大写。
+     ​		这八个类名中，除了Integer和Character类以外，其他六个类的类名和基本数据类型一致，只是首字母大写。
 
    * 包装类的用途
 
      ​		主要用途有两种：
 
-     				1. 作为和基本数据类型对应的类型存在，方便涉及到对象的操作。
-        				2. 包含每种基本数据类型的相关属性如最大值、最小值等，以及相关的操作方法。
+     		1. 作为和基本数据类型对应的类型存在，方便涉及到对象的操作。
+       		2. 包含每种基本数据类型的相关属性如最大值、最小值等，以及相关的操作方法。
 
      ```java
      /**
@@ -175,6 +175,179 @@
 
     		> long now = System.currentTimeMillis();
 
+    1. Date时间类（java.util.Date)
+
+       ​		标准Java类库中包含一个Date类。它的对象表示一个特定的瞬间，精确到毫秒。
     
+         * Date()分配一个Date对象，并初始化此对象为系统当前的日期和时间，可以精确到毫秒。
+    
+         * Date(long date)分配Date对象并初始化此对象，以表示自从标准基准时间以来的指定毫秒数。
+    
+         * boolean after(Date when)测试此日期是否在指定日期之后。
+    
+         * boolean before(Date when)测试此日期是否在指定日期之前。
+    
+         * boolean equals(Object obj)比较两个日期的相等性。
+    
+         * long getTime()返回自基准时间以来Date对象表示的毫秒数。
+    
+         * String to String()把此Date对象转换为以下形式的String：
+    
+           ​				dow mon dd hh:mm:ss zzz yyyy
+    
+       ```java
+       import java.util.Date;
+       public class TestDate {
+           public static void main(String[] args) {
+               Date date1 = new Date();
+               System.out.println(date1.toString());
+               long i = date1.getTime();
+               Date date2 = new Date(i - 1000);
+               Date date3 = new Date(i + 1000);
+               System.out.println(date1.after(date2));
+               System.out.println(date1.before(date2));
+               System.out.println(date1.equals(date2));
+               System.out.println(date1.after(date3));
+               System.out.println(date1.before(date3));
+               System.out.println(date1.equals(date3));
+               System.out.println(new Date(1000L * 60 * 60 * 24 * 365 * 39L).toString());
+           }
+       }
+       ```
+    
+    2. DateFormat类和SimpleDateFormat类
+    
+       作用：把时间对象转化成指定格式的字符串。反之，把指定格式的字符串转化成时间对象。
+    
+       DateFormat是一个抽象类，一般使用它的子类SimpleDateFormat类来实现。
+    
+       ```java
+       import java.text.DateFormat;
+       import java.text.ParseException;
+       import java.text.SimpleDateFormat;
+       import java.util.Date;
+       
+       /**
+        * 测试时间对象和字符串之间的互相转换
+        * DateFormat抽象类和SimpleDateFormat实现类的使用
+        * @author zsk
+        *
+        */
+       public class TestDateFormat {
+       	public static void main(String[] args) throws ParseException {
+       		//new出SimpleDateFormat对象
+       		DateFormat s1= new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
+       		DateFormat s2 = new SimpleDateFormat("yyyy-MM-dd");
+       		//将时间对象转换成字符串
+       		String daytime = s1.format(new Date());
+       		System.out.println(daytime);
+       		System.out.println(s2.format(new Date()));
+       		System.out.println(new SimpleDateFormat("hh:mm:ss").format(new Date()));
+       		//将符合指定格式的字符串转化成时间对象。字符串格式需要和指定格式一致。
+       		String time = "2007-10-7";
+       		Date date = s2.parse(time);
+       		System.out.println("date1:" + date);
+       		time = "2007-10-7 20:15:30";
+       		date = s1.parse(time);
+       		System.out.println("date2:" + date);
+       	}
+       }
+       ```
+    
+       格式化字符还有很多，见API。
+    
+    3. Calendar日历类
+    
+       ​		Calendar类是一个抽象类，提供了关于日期计算的相关功能，比如：年、月、日的展示和计算。
+    
+       ​		GregorianCalendar是Calendar的一个具体子类，提供了世界上大多数国家或地区使用的标准日历。
+    
+       ```java
+       /**
+        * 测试日期类的使用
+        * @author zsk
+        *
+        */
+       public class TestCalendar {
+       	public static void main(String[] args) {
+               //得到相关日期元素
+       		Calendar calendar = new GregorianCalendar(2999,10,9,22,10,50);
+       		int year = calendar.get(Calendar.YEAR);
+       		int month = calendar.get(Calendar.MONTH);
+       		System.out.println(year);
+       		System.out.println(month);
+       		//设置日期
+       		Calendar c2 = new GregorianCalendar();
+       		c2.set(Calendar.YEAR, 2999);
+       		c2.set(Calendar.MONTH, 3);  //月份 ： 0-11
+       		//日期计算
+       		Calendar c3 = new GregorianCalendar();
+       		c3.add(Calendar.MONTH, -7);
+       		//日历对象和时间对象转化
+       		Date d = c3.getTime();
+       		Calendar c4 = new GregorianCalendar();
+       		c4.setTime(new Date());
+       		long g  = System.currentTimeMillis();
+       		printCalendar(c4);
+       	}
+       	static void printCalendar(Calendar c) {
+       		int year = c.get(Calendar.YEAR);
+       		int month = c.get(Calendar.MONTH) + 1;
+       	    int day = c.get(Calendar.DAY_OF_MONTH);
+       	    int date = c.get(Calendar.DAY_OF_WEEK) - 1; // 星期几
+       	    String week = "" + ((date == 0) ? "日" : date);
+       	    int hour = c.get(Calendar.HOUR);
+       	    int minute = c.get(Calendar.MINUTE);
+       	    int second = c.get(Calendar.SECOND);
+       	    System.out.printf("%d年%d月%d日,星期%s %d:%d:%d\n", year, month, day,  
+       	                        week, hour, minute, second);
+       	}
+       }
+       ```
+    
+       ---
+    
+       ```java
+       /**
+        * 可视化日历程序
+        * @author zsk
+        *
+        */
+       public class TestCalendarDate {
+       	public static void main(String[] args) throws ParseException {
+       		System.out.println("请输入日期（格式为2020-10-2）：");
+       		Scanner scanner = new Scanner(System.in);
+       		String str = scanner.nextLine();
+       		DateFormat df = new SimpleDateFormat("yyyy-MM-dd");
+       		Date date = df.parse(str);
+       		Calendar c = new GregorianCalendar();
+       		c.setTime(date);
+       		int day = c.get(Calendar.DATE);
+       		c.set(Calendar.DATE, 1);
+       		int dow = c.get(Calendar.DAY_OF_WEEK);
+       		int max = c.getActualMaximum(Calendar.DATE);
+       		System.out.println("日\t一\t二\t三\t四\t五\t六");
+       		for(int i = 0; i < dow - 1; i++) {
+       			System.out.println("\t");
+       		}
+       		
+       		for(int i = 1; i <= max; i++) {
+       			if(c.get(Calendar.DATE) == day) {
+       				System.out.print(c.get(Calendar.DATE) + "*\t");
+       			}else {
+       				System.out.print(c.get(Calendar.DATE) + "\t");
+       			}
+       			
+       			if(c.get(Calendar.DAY_OF_WEEK) == Calendar.SATURDAY) {
+       				System.out.println();
+       			}
+       			c.add(Calendar.DATE, 1);
+       		}
+       
+       	}
+       }
+       ```
+    
+4. **Math类**
 
     
