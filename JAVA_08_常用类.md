@@ -173,25 +173,25 @@
 
     ​		使用long类型的变量来表示时间。如果想获得现在时刻的“时刻数值”，可以使用
 
-    		> long now = System.currentTimeMillis();
+    		 long now = System.currentTimeMillis();
 
     1. Date时间类（java.util.Date)
 
        ​		标准Java类库中包含一个Date类。它的对象表示一个特定的瞬间，精确到毫秒。
     
-         * Date()分配一个Date对象，并初始化此对象为系统当前的日期和时间，可以精确到毫秒。
+         * Date()  分配一个Date对象，并初始化此对象为系统当前的日期和时间，可以精确到毫秒。
     
-         * Date(long date)分配Date对象并初始化此对象，以表示自从标准基准时间以来的指定毫秒数。
+         * Date(long date)  分配Date对象并初始化此对象，以表示自从标准基准时间以来的指定毫秒数。
     
-         * boolean after(Date when)测试此日期是否在指定日期之后。
+         * boolean after(Date when)  测试此日期是否在指定日期之后。
     
-         * boolean before(Date when)测试此日期是否在指定日期之前。
+         * boolean before(Date when)  测试此日期是否在指定日期之前。
     
-         * boolean equals(Object obj)比较两个日期的相等性。
+         * boolean equals(Object obj)  比较两个日期的相等性。
     
-         * long getTime()返回自基准时间以来Date对象表示的毫秒数。
+         * long getTime()  返回自基准时间以来Date对象表示的毫秒数。
     
-         * String to String()把此Date对象转换为以下形式的String：
+         * String to String()  把此Date对象转换为以下形式的String：
     
            ​				dow mon dd hh:mm:ss zzz yyyy
     
@@ -349,5 +349,208 @@
        ```
     
 4. **Math类**
+
+    		java.lang.Math提供了一系列静态方法用于科学计算；方法的参数和返回值类型一般为double型。
+   
+   **常用方法**：
+   
+   		* abs 绝对值
+   		* acos，asin，atan，cos，sin，tan  三角函数
+   		* sqrt  平方根
+   		* pow(double a, double b)   a的b次幂
+   		* max(double a, double b)  取大值
+   		* min(double a, double b)  取小值
+   		* ceil(double a)  大于a的最小整数
+   		* floor(double a)  小于a的最大整数
+   		* random()  返回0.0到1.0的随机数
+   		* long round(double a)  double型的数据a转换成long型（四舍五入）
+   		* toDegrees(double angrad)  弧度->角度
+   		* toRadians(double angdeg)  角度->弧度
+   
+   ```java
+   		//取整相关操作
+           System.out.println(Math.ceil(3.2));
+           System.out.println(Math.floor(3.2));
+           System.out.println(Math.round(3.2));
+           System.out.println(Math.round(3.8));
+           //绝对值、开方、a的b次幂等操作
+           System.out.println(Math.abs(-45));
+           System.out.println(Math.sqrt(64));
+           System.out.println(Math.pow(5, 2));
+           System.out.println(Math.pow(2, 5));
+           //Math类中常用的常量
+           System.out.println(Math.PI);
+           System.out.println(Math.E);
+           //随机数
+           System.out.println(Math.random());// [0,1)
+   
+   		Random rand = new Random();
+           //随机生成[0,1)之间的double类型的数据
+           System.out.println(rand.nextDouble());
+           //随机生成int类型允许范围之内的整型数据
+           System.out.println(rand.nextInt());
+           //随机生成[0,1)之间的float类型的数据
+           System.out.println(rand.nextFloat());
+           //随机生成false或者true
+           System.out.println(rand.nextBoolean());
+           //随机生成[0,10)之间的int类型的数据
+           System.out.print(rand.nextInt(10));
+           //随机生成[20,30)之间的int类型的数据
+           System.out.print(20 + rand.nextInt(10));
+           //随机生成[20,30)之间的int类型的数据（此种方法计算较为复杂）
+           System.out.print(20 + (int) (rand.nextDouble() * 10));
+   ```
+   
+5. **File类**
+
+     * 基本用法
+
+       ​		java.io.File类：代表文件和目录。在开发中，读取文件、生成文件、删除文件、修改文件的属性时经常用到本类。
+
+       **File类的常见构造方法：public File(String pathname)**
+
+       ​		以pathname为路径创建File对象，如果pathname是相对路径，则默认的当前路径在系统属性user.dir中存储，
+
+       ```java
+       public class TestFile{
+           public static void main(String[] args) throws Exception{
+               System.out.println(System.getProperty("user.dir"));
+               File f = new File("a.txt");  //相对路径：默认放到user.dir目录下面
+               f.createNewFile();  //创建文件
+               File f2 = new File("d:/b.txt");  //绝对路径
+               f2.createNewFile();
+           }
+       }
+       ```
+
+       **通过File对象可以访问文件的属性**
+
+       ```java
+               File f = new File("d:/b.txt");
+               System.out.println("File是否存在："+f.exists());
+               System.out.println("File是否是目录："+f.isDirectory());
+               System.out.println("File是否是文件："+f.isFile());
+               System.out.println("File最后修改时间："+new Date(f.lastModified()));
+               System.out.println("File的大小："+f.length());
+               System.out.println("File的文件名："+f.getName());
+               System.out.println("File的目录路径："+f.getPath());
+       ```
+
+       **通过File对象创建空文件或目录（在该对象所指的文件或目录不存在的情况下）**
+
+       ​		createNewFile()				创建新的File
+
+       ​		delete()								删除File对应的文件
+
+       ​		mkdir()								创建一个目录；中间某个目录缺少，则创建失败
+
+       ​		mkdirs()								创建多个目录；中间某个目录缺失，则创建该缺失目录
+
+       ```java
+       public class TestFile{
+           public static void main(String[] args) throws Exception{
+               File f = new File("d:/c.txt");
+               f.createNewFile();  //在d盘下生成c.txt文件
+               f.delete();  //将该文件或目录从硬盘上删除
+               File f2 = new File("d:/电影/华语/大陆");
+               boolean flag = f2.mkdir();  //目录结构中有一个不存在，则不会创建整个目录树
+           	System.out.println(flag);  //创建失败
+               
+               boolean flag1 = f2.mkdirs();  //目录中有不存在的没关系，创建整个目录树
+               System.out.println(flag);  //创建成功
+           }
+       }
+       ```
+
+    * 递归遍历目录结构和树状展示
+
+      ```java
+      /**
+       * 测试递归打印文件目录
+       * @author zsk
+       *
+       */
+      public class TestFileTree {
+      	public static void main(String[] args) {
+      		File f = new File("d:/电影");
+      		printFile(f, 0);
+      	}
+      	
+      	/**
+      	 * 打印文件名称
+      	 * @param f 文件名称
+      	 * @param level层次数
+      	 */
+      	static void printFile(File f, int level) {
+      		//输出层次数
+      		for(int i =0; i < level; i++) {
+      			System.out.println("-");
+      		}
+      		//输出文件名
+      		System.out.println(f.getName());
+      		//如果file是目录，则获取子文件列表，并对每个子文件进行相同操作
+      		if(f.isDirectory()) {
+      			File[] files = f.listFiles();
+      			for(File temp:files) {
+      				//递归调用该方法：注意层级+1
+      				printFile(temp, level+1);
+      			}
+      		}
+      	}
+      }
+      ```
+
+6. **枚举**
+
+    格式如下：
+
+    ```java
+    enum 枚举名{
+    	枚举体（常量列表）
+    }
+    ```
+
+    ​		枚举体就是放置一些常量。所有的枚举类型隐性的继承自java.lang.Enum。枚举实质上还是类！而每个被枚举的成员实质就是一个枚举类型的实例，默认都是public static final修饰的。可以通过枚举类型名使用它们。
+
+    **建议**
+
+    		* 当你需要定义一组常量时，可以使用枚举类型。
+    		* 尽量不要使用枚举的高级特性，事实上高级特效都可以使用普通类来实现。
+
+    ```java
+    public class TestEnum{
+        public static void main(String[] args){
+            //枚举遍历
+            for(Week k : Week.values()){
+                System.out.println(k);
+            }
+            //switch语句中使用枚举
+            int a = new Random().nextInt(4); //生成0，1,2,3的随机数
+            switch (Season.values()[a]){
+                case SPRING:
+                    System.out.println("春天");
+                    break;
+                case SUMMER:
+                    System.out.println("夏天");
+                    break;
+                case AUTUMN:
+                    System.out.println("秋天");
+                    break;
+                case WINDTER:
+                    System.out.println("冬天");
+                    break;
+            }
+        }
+        
+    }
+    //季节
+    enum Season{
+        SPRING, SUMMER, AUTUMN, WINDTER
+    }
+    //星期
+    enum Week{
+        周一,周二, 周三, 周四, 周五, 周六, 周日
+    }
+    ```
 
     
