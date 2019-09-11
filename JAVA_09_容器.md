@@ -105,8 +105,158 @@
 
      **可重复**：List允许加入重复的元素。List通常允许满足e1.equals(e2)的元素重复加入容器。
 
-     除了Collection接口中的方法，List多了一些跟顺序（索引）有关的方法
+     除了Collection接口中的方法，List多了一些跟顺序（索引）有关的方法，如：
+
+     ​		add(int index, Object element); set(int index, Object element); get(int index); remove(int index)
 
      List接口常用的实现类有3个：ArrayList、LinkedList和Vector
-
+     
+     ```java
+     /**
+      * 测试ArrayList的索引方法
+      * @author zsk
+      *
+      */
+     public class TestArrayList {
+     	public static void main(String[] args) {
+     		test02();
+     	}
+     	
+     	public static void test02() {
+     		List<String> list = new ArrayList<>();
+     		list.add("A");
+     		list.add("B");
+     		list.add("C");
+     		list.add("D");
+     		System.out.println(list);
+     		list.add(2, "zsk");
+     		System.out.println(list);
+     		list.remove(2);
+     		System.out.println(list);
+     		list.set(2, "c");
+     		System.out.println(list);
+     		System.out.println(list.get(1));
+     		list.add("B");
+     		System.out.println(list);
+     		System.out.println(list.indexOf("B"));
+     		System.out.println(list.lastIndexOf("B"));
+     	}
+     }
+     ```
+     
+     **手工实现ArrayList底层原理**
+     
+     ```java
+     /**
+      * 自定义一个ArrayList，体会底层原理
+      * 增加泛型
+      * 增加数组扩容
+      * 增加set和get方法
+      * 增加数组边界检查
+      * 增加remove方法
+      * @author zsk
+      *
+      */
+     public class ZskArrayList <E>{
+     	
+     	private Object[] elementData;
+     	private int size;
+     	
+     	private static final int DEFALT_CAPACITY = 10;
+     	
+     	public ZskArrayList() {
+     		elementData = new Object[DEFALT_CAPACITY];
+     	
+     	}
+     	
+     	public ZskArrayList(int capacity) {
+     		if(capacity < 0) {
+     			throw new RuntimeException("容器容量不能为负！");
+     		}else if(capacity == 0){
+     			elementData = new Object[DEFALT_CAPACITY];
+     		}else {
+     			elementData = new Object[capacity];
+     		}
+     		
+     	}
+     	
+     	@Override
+     	public String toString() {
+     		
+     		StringBuilder sb = new StringBuilder();
+     		sb.append("[");
+     		for(int i = 0; i < size; i++) {
+     			sb.append(elementData[i] + ",");
+     		}
+     		sb.setCharAt(sb.length() - 1, ']');
+     		return sb.toString();
+     		
+     	}
+     	
+     	public void add(E e) {
+     		//什么时候扩容
+     		if(size == elementData.length) {
+     			//怎么扩容
+     			Object[] newArray = new Object[elementData.length + (elementData.length>>1)];
+     			System.arraycopy(elementData, 0, newArray, 0, elementData.length);
+     			elementData = newArray;
+     		}
+     		elementData[size++] = e;
+     	}
+     	
+     	public E  get(int index) {
+     		checkRange(index);
+     		return (E) elementData[index];
+     	}
+     	
+     	public void set(E e, int index) {
+     		checkRange(index);
+     		elementData[index] = e;
+     	}
+     	
+     	public void checkRange(int index) {
+     		//索引合法判断[0,size)
+     		if(index < 0 || index > size - 1) {
+     			//不合法
+     			throw new RuntimeException("索引不合法：" + index);
+     		}
+     	}
+     	
+     	public void remove(int index) {
+     		int numMoved = elementData.length - index - 1;
+     		if(numMoved > 0) {
+     			System.arraycopy(elementData, index+1, elementData, index, numMoved);
+     		}
+     		elementData[size - 1] = null;
+     		size--;
+     		
+     	}
+     	
+     	public void remove(E e) {
+     		//e 将它和所有元素挨个比较，获得第一个比较为true的
+     		for(int i = 0; i < size; i++) {
+     			if(e.equals(get(i))) {
+     				remove(i);
+     			}
+     		}
+     	}
+     	
+     	public static void main(String[] args) {
+     		ZskArrayList<String> s1 = new ZskArrayList<>(20);
+     		
+     		for(int i = 0; i < 40; i++) {
+     			s1.add("zsk" + i);
+     		}
+     		
+     		System.out.println(s1.get(10));
+     		System.out.println(s1);
+     		s1.remove(5);
+     		s1.remove("zsk10");
+     		System.out.println(s1);
+         }
+     }
+     ```
+     
+     
+     
      
