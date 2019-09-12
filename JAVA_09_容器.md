@@ -146,6 +146,8 @@
      
      **手工实现ArrayList底层原理**
      
+     ​		ArrayList底层是用数组实现的存储。特点：查询效率高，增删效率低，线程不安全。
+     
      ```java
      /**
       * 自定义一个ArrayList，体会底层原理
@@ -257,6 +259,171 @@
      }
      ```
      
+   * **LinkedList特点和底层实现**
+   
+     ​		LinkedList底层用双向链表实现的存储。特点：查询效率低，增删效率高，线程不安全。
+   
+     ​		双向链表也叫双链表，是链表的一种，它的每个数据节点中都有两个指针，分别指向前一个节点和后一个节点。所以，从链表中的任何一个节点开始，都可以很方便地找到所有节点。
+   
+     ```java
+     class Node{
+         Node previous;  //前一个节点
+         Object element;  //节点的数据
+         Node next;  //后一个节点
+     }
+     ```
+   
+     ​		**自定义实现LinkedList**
+   
+     ```java
+     /**
+      * 测试自写LinkedList,链表
+      * 增加get方法
+      * 增加remove方法
+      * 增加插入节点的方法
+      * 增加小封装，增加泛型
+      * @author zsk
+      *
+      */
+     public class ZskLinkedList<E> {
+     	
+     	private Node first;
+     	private Node last;
+     	private int size;
+     	
+     	public void add(int index, E e) {
+     		checkRange(index);
+     		
+     		Node newNode = new Node(e);
+     		Node temp = getNode(index);
+     		
+     		if(temp!=null) {
+     			Node up = temp.previous;
+     			
+     			up.next = newNode;
+     			newNode.previous = up;
+     			
+     			newNode.next = temp;
+     			temp.previous = newNode;
+     			
+     		}
+     		
+     	}
+     	
+     	public void remove(int index) {
+     		checkRange(index);
+     		Node temp = getNode(index);
+     		
+     		if(temp != null) {
+     			Node up = temp.previous;
+     			Node down = temp.next;
+     			
+     			if(up != null) {
+     				up.next = down;
+     			}
+     			
+     			if(down != null) {
+     				down.previous = up;
+     			}
+     			
+     			if(index == 0) {
+     				first = down;
+     			}
+     			
+     			if(index == size-1) {
+     				last = up;
+     			}
+     			
+     			size--;
+     		}
+     		
+     	}
+     	
+     	public E get(int index) {
+     		checkRange(index);
      
-     
-     
+     		Node temp = null;
+     		temp = getNode(index);
+     		return (E) temp.element;
+     	}
+     	
+     	private void checkRange(int index) {
+     		if(index <0 || index > size-1) {
+     			throw new RuntimeException("索引不合法！");
+     		}
+     	}
+     	
+     	private Node getNode(int index) {
+     		Node temp = null;
+     		
+     		if(index <=(size>>1)) {
+     			temp = first;
+     			for(int i = 0; i < index; i++) {
+     				temp = temp.next;
+     			}
+     		}else {
+     			temp = last;
+     			for(int i = size-1; i > index; i--) {
+     				temp = temp.previous;
+     			}
+     		}
+     		return temp;
+     	}
+     	
+     	public void add(E e) {
+     		
+     		Node node = new Node(e);
+     		
+     		if(first == null) {
+     			first = node;
+     			last = node;
+     		}else {
+     			node.previous = last;
+     			node.next = null;
+     			
+     			last.next = node;
+     			last = node;
+     		}
+     		size++;
+     	}
+     	
+     	@Override
+     		public String toString() {
+     			StringBuilder sb = new StringBuilder("[");
+     			
+     			Node temp = first;
+     			while(temp != null) {
+     				sb.append(temp.element + ",");
+     				temp = temp.next;
+     			}
+     			sb.setCharAt(sb.length()-1, ']');
+     			return sb.toString();
+     		}
+     	
+     	public static void main(String[] args) {
+     		ZskLinkedList<String> list = new ZskLinkedList<>();
+     		
+     		list.add("a");
+     		list.add("b");
+     		list.add("c");
+     		list.add("d");
+     		list.add("e");
+     		list.add("f");
+     		
+     		System.out.println(list);
+     		
+     		list.add(3, "zsk");
+     		System.out.println(list);
+     	}
+     }
+     ```
+   
+   * **Vector向量**
+   
+     ​		Vector底层是用数组实现的List，相关的方法都加了同步检查，因此“线程安全，效率低”。
+   
+     如何选用ArrayList、LinkedList、Vector？
+   
+     		* 需要线程安全时，用Vector。
+     		* 不存在线程安全问题时，并且查找较多用ArrayList（一般用它）。
+     		* 不存在线程安全问题时，增加或删除元素较多用LinkedList。
