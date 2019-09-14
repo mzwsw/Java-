@@ -424,6 +424,128 @@
    
      如何选用ArrayList、LinkedList、Vector？
    
-     		* 需要线程安全时，用Vector。
-     		* 不存在线程安全问题时，并且查找较多用ArrayList（一般用它）。
-     		* 不存在线程安全问题时，增加或删除元素较多用LinkedList。
+     * 需要线程安全时，用vector。
+     * 不存在线程安全问题时，并且查找较多用ArrayList（一般用它）。
+     * 不存在线程安全问题时，增加或删除元素较多用LinkedList。
+   
+4. **Map接口**
+
+   ​		Map就是用来存储“键(key)-值(value)对”的。Map类中存储的“键值对”通过键来标识，所以“键对象”不能重复。
+
+   ​		Map接口的实现类有HashMap、TreeMap、HashTable、Properties等。
+
+   **常用方法**
+
+   ​				Object put(Object key,Object value)		存放键值对
+
+   ​				Object get(Object key)		通过键对象查找得到值对象
+
+   ​				Object remove(Object key)		删除键对象对应的键值对
+
+   ​				boolean containsKey(Object key)		Map容器中是否包含键对象对应的键值对
+
+   ​				boolean containsValue(Object value)		Map容器中是否包含值对象对应的键值对
+
+   ​				int size()		包含键值对的数量
+
+   ​				boolean isEmpty()		Map是否为空
+
+   ​				void putAll(Map t)		将t的所有键值对存放到本map对象
+
+   ​				void clear()		清空本map对象所有键值对
+
+   * **HashMap和HashTable**
+
+     ​		HashMap采用哈希算法实现，是Map接口最常用的实现类。由于底层采用了哈希表存储数据，要求键不能重复，如果发生重复，新的键值对会替换旧的键值对。HashMap在查找、删除、修改方面都有非常高的效率。
+
+     ```java
+     /**
+      * 测试HashMap的使用
+      * @author zsk
+      *
+      */
+     public class TestMap {
+     	public static void main(String[] args) {
+     		Map<Integer,String> m1 = new HashMap<>();
+     		
+     		m1.put(1, "one");
+     		m1.put(2, "two");
+     		m1.put(3, "three");
+     		
+     		System.out.println(m1.get(1));
+     		
+     		System.out.println(m1.size());
+     		System.out.println(m1.isEmpty());
+     		System.out.println(m1.containsKey(2));
+     		System.out.println(m1.containsValue("four"));
+     		
+     		Map<Integer,String> m2 = new HashMap<>();
+     		m2.put(4, "四");
+     		m2.put(5, "五");
+     		
+     		m1.putAll(m2);
+     		System.out.println(m1);
+     	}
+     }
+     ```
+
+     ​		HashTable类和HashMap用法几乎一样，底层实现几乎一样，只不过HashTable的方法添加了synchronized关键字确保线程同步检查，效率较低。
+
+     **两者区别**
+
+     * HashMap：线程不安全，效率高。允许key或value为null。
+     * HashTable：线程安全，效率低。不允许key或value为null。
+
+   * **HashMap底层实现详解**
+
+     ​		HashMap底层实现采用了哈希表，这是一种非常重要的数据结构。
+
+     ​		哈希表的本质就是“数组+链表”。
+
+     * 基本结构讲解
+
+       ​		哈希表的基本结构就是“数组+链表”。
+
+       ​		其中的Entry[] table就是HashMap的核心数组结构，称之为“位桶数组”。
+
+       ​		一个Entry对象存储了：
+
+       ​		1.key：键对象 value：值对象  2.next：下一个节点  3.hash：键对象的hash值
+
+       ​		显然**每一个Entry对象就是一个单向链表结构**。
+
+     * 存储数据过程put(key,value)
+
+       1. 获得key对象的hashcode
+
+          首先调用key对象的hashcode()方法，获得hashcode。
+
+       2. 根据hashcode计算出hash值（要求在[0,数组长度-1]区间）
+
+          hashcode是一个整数，需要将它转化成[0,数组长度-1]的范围。要求转化后的hash值尽量均匀地分布在[0,数组长度-1]这个区间，减少“hash冲突”。
+
+       3. 生成Entry对象
+
+          一个Entry对象包含4部分：key对象、value对象、hash值、指向下一个Entry对象的引用。现在有了hash值。下一个Entry对象的引用为null。
+
+       4. 将Entry对象放到table数组中
+
+          如果本Entry对象对应的数组索引位置还没有放Entry对象，则直接将Entry对象存储进数组；如果对应索引位置已经有Entry对象，则将已有Entry对象的next指向本Entry对象，形成链表。
+
+     * 取数据过程get(key)
+
+       1. 获得key的hashcode，通过hash()散列算法得到hash值，进而定位到数组的位置。
+       2. 在链表上挨个比较key对象。调用equals()方法，将key对象和链表上所有节点的key对象进行比较，知道碰到返回true的节点对象为止。
+       3. 返回equals()为true的节点对象的value对象。
+
+       **Java中规定，两个内容相同(equals()为true)的对象必须具有相等的hashCode**。
+
+     * 扩容问题
+
+       ​		HashMap的位桶数组，初始大小为16.实际使用时，显然大小可变。如果位桶数组中的元素达到（0.75*数组length），就重新调整数组大小为原来2倍大小。
+
+       ​		扩容很耗时。扩容的本质是定义新的更到的数组，并将旧数组内容挨个拷贝到新数组中。
+
+     * JDK8将链表在大于8情况下变为红黑二叉树
+
+       ​		JDK8中，HashMap在存储一个元素时，当对应链表长度大于8时，链表就转换为红黑树。
