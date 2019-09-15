@@ -549,3 +549,207 @@
      * JDK8将链表在大于8情况下变为红黑二叉树
 
        ​		JDK8中，HashMap在存储一个元素时，当对应链表长度大于8时，链表就转换为红黑树。
+     
+     **自定义实现HashMap底层实现**
+     
+     ```java
+     /**
+      * 自定义HashMap
+      * 增加put方法，解决了键重复时覆盖相应的value
+      * 增加toString方法
+      * 增加泛型
+      * @author zsk
+      * *
+      */
+     public class ZskHashMap<K, V> {
+     	public static void main(String[] args) {
+     		ZskHashMap<Integer, String> m = new ZskHashMap<>();
+     		m.put(10, "aa");
+     		m.put(20, "bb");
+     		m.put(30, "cc");
+     		m.put(20, "ssss");
+     		
+     		m.put(53,"zz");
+     		m.put(69, "ss");
+     		m.put(85, "kk");
+     		
+     		System.out.println(m);
+     		
+     		System.out.println(m.get(69));
+     	}
+     	
+     	Node3[] table;   //位桶数组
+     	int size;  //存放的键值对的个数
+     	
+     	public ZskHashMap() {
+     		table = new Node3[16];  //长度一般定义为2的整数幂
+     	}
+     	
+     	public V get(K key) {
+     		
+     		int hash = myHash(key.hashCode(), table.length);
+     		V value = null;
+     		
+     		if(table[hash] != null) {
+     			Node3 temp = table[hash];
+     			
+     			while(temp != null) {
+     				if(temp.key.equals(key)) {
+     					value = (V) temp.value;
+     					break;
+     				}else {
+     					temp = temp.next;
+     				}
+     			}
+     		}
+     		
+     		return value;
+     	}
+     	
+     	public void put(K key, V value) {
+     		//定义了新的节点对象
+     		Node3 newNode = new Node3();
+     		newNode.hash = myHash(key.hashCode(),table.length);
+     		newNode.key = key;
+     		newNode.value = value;
+     		
+     		Node3 temp = table[newNode.hash];
+     		
+     		Node3 iterLast = null;
+     		
+     		boolean keyRepeat = false;
+     		
+     		if(temp == null) {
+     			//此处数组元素为空，则直接将新节点放进去
+     			table[newNode.hash] = newNode;
+     			size++;
+     		}else {
+     			//此处数组元素不为空，则遍历对应链表
+     			while(temp != null) {
+     				//判断key如果重复，覆盖
+     				if(temp.key.equals(key)) {
+     					keyRepeat = true;
+     					temp.value = value;  //只是覆盖value，其他值保持不变
+     					break;
+     				}else {
+     					//如果key不重复,则遍历下一个
+     					iterLast = temp;
+     					temp = temp.next;
+     				}
+     			}
+     			if(!keyRepeat) {
+     				iterLast.next = newNode;
+     				size++;
+     			}
+     		}
+     		
+     	}
+     		
+     	@Override
+     	public String toString() {
+     		StringBuilder sb = new StringBuilder("{");
+     		for(int i = 0; i < table.length; i++) {
+     			Node3 temp = table[i];
+     			while(temp!=null) {
+     				sb.append(temp.key + ":" + temp.value + ",");
+     				temp = temp.next;
+     			}
+     		}
+     		sb.setCharAt(sb.length()-1, '}');
+     		return sb.toString();
+     	}
+     	
+     	public int myHash(int v, int length) {
+     		return v&(length - 1);
+     	}
+     }
+     ```
+     
+   * **TreeMap的使用和底层实现**
+   
+     ​		TreeMap是红黑二叉树的典型实现。
+   
+     ​		TreeMap和HashMap实现了同样的接口Map，因此，用法对于调用者来说没有区别。
+   
+     ​		Hashmap效率高于TreeMap；在需要排序的Map时才选用TreeMap。
+   
+5. **Set接口**
+
+   ​		Set接口继承自Collection，Set接口中没有新增方法，方法和Collection保持完全一致。
+
+   ​		Set容器特点：无序、不可重复。无序指Set中的元素没有索引，只能遍历查找；不可重复指不允许加入重复的元素。更确切的讲，新元素如果和Set中某个元素通过equals()方法对比为true，则不能加入；甚至，Set中只能放入一个null元素。
+
+   ​		Set常用的实现类有：HashSet、TreeSet等。一般用HashSet。
+
+   * **HashSet基本使用**
+
+     ```java
+     public class test{
+         public static void main(String[] args){
+             Set<String> s = new HashSet<>();
+             s.add("hello");
+             s.add("world");
+             System.out.println(s);  //[world,hello]
+             s.add("hello");  //相同元素不会被加入
+             System.out.println(s);  //[world,hello]
+             s.add(null);
+             System.out.println(s);  //[null,world,hello]
+             s.add(null);
+             System.out.println(s);  //[null,world,hello]
+         }
+     }
+     ```
+
+   * **HashSet底层实现**
+
+     ​		HashSet是采用哈希算法实现，底层实际是用HashMap实现的（HashSet本质是一个简化版的HashMap），因此，查询效率和增删效率都比较高。
+
+     ​		**往set中加入元素，本质就是把这个元素作为key加入到了内部的map中**，由于map中key都是不可重复的，因此，Set天然具有“不可重复”特性。
+
+     ```java
+     /**
+      * 自定义一个HashSet
+      * @author zsk
+      *
+      */
+     public class ZskHashSet {
+     	
+     	HashMap map;
+     	
+     	private static final Object PRESENT = new Object();
+     	
+     	public ZskHashSet() {
+     		map = new HashMap();
+     	}
+     	
+     	public int size() {
+     		return map.size();
+     	}
+     	
+     	@Override
+     		public String toString() {
+     			StringBuilder sb = new StringBuilder();
+     			sb.append("[");
+     			for(Object key:map.keySet()) {
+     				sb.append(key + ",");
+     			}
+     			sb.setCharAt(sb.length()-1, ']');
+     			return sb.toString();
+     		}
+     	
+     	public void add(Object o) {
+     		map.put(o, PRESENT);
+     	}
+     	
+     	public static void main(String[] args) {
+     		ZskHashSet set = new ZskHashSet();
+     		set.add("aaa");
+     		set.add("bbb");
+     		set.add("ccc");
+     		
+     		System.out.println(set);
+         }
+     }
+     ```
+
+     
