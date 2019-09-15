@@ -672,6 +672,74 @@
      ​		TreeMap和HashMap实现了同样的接口Map，因此，用法对于调用者来说没有区别。
    
      ​		Hashmap效率高于TreeMap；在需要排序的Map时才选用TreeMap。
+     
+     ```java
+     /**
+      * 测试TreeMap的使用
+      * @author zsk
+      *
+      */
+     public class TestTreeMap {
+     	public static void main(String[] args) {
+     		Map<Integer, String> treemap1 = new TreeMap<>();
+     		
+     		treemap1.put(20, "aa");
+     		treemap1.put(3, "bb");
+     		treemap1.put(6, "cc");
+     		
+     		for(Integer key : treemap1.keySet()) {
+     			System.out.println(key + "---" + treemap1.get(key));
+     		}
+     		
+     		Map<Emp,String> treemap2 = new TreeMap<>();
+     		treemap2.put(new Emp(100, "张三", 50000	), "张三是个好小伙");
+     		treemap2.put(new Emp(200, "李四", 5000), "李四工作不积极");
+     		treemap2.put(new Emp(150, "王五", 6000), "王五还不错");
+     		treemap2.put(new Emp(50, "赵六", 6000), "赵六也可以");
+     		
+     		for(Emp key : treemap2.keySet()) {
+     			System.out.println(key + "---" + treemap2.get(key));
+     		}
+     	
+     	}
+     }
+     
+     
+     class Emp implements Comparable<Emp>{
+     	int id;
+     	String name;
+     	double salary;
+     	
+     	public Emp(int id, String name, double salary) {
+     		super();
+     		this.id = id;
+     		this.name = name;
+     		this.salary = salary;
+     	}
+     
+     	@Override
+     	public int compareTo(Emp o) {
+     		if(this.salary > o.salary) {
+     			return 1;
+     		}else if(this.salary < o.salary){
+     			return -1;
+     		}else {
+     			if(this.id > o.id) {
+     				return 1;
+     			}else if(this.id < o.id) {
+     				return -1;
+     			}else {
+     				return 0;
+     			}
+     		}
+     	}
+     	
+     	@Override
+     		public String toString() {
+     			return "id" + id + ",name" + name + ",salary" + salary;
+     		}
+     }
+     ```
    
 5. **Set接口**
 
@@ -752,4 +820,15 @@
      }
      ```
 
-     
+   * **TreeSet的使用和底层实现**
+   
+     ​		TreeSet底层实际是用TreeMap实现的，内部维持了一个简化版的TreeMap，通过key来存储Set的元素。TreeSet内部需要对存储的元素进行排序，因此，我们对应的类需要实现Comparable接口。这样，才能根据compareTo()方法比较对象之间的大小，才能进行内部排序。
+   
+     **要点**
+   
+     	* 由于是二叉树，需要对元素做内部排序。如果要放入TreeSet中的类没有实现Comparable接口，则会抛出异常：java.lang.ClassCastException.
+     	* TreeSet中不能放入null元素。
+   
+6. **迭代器**
+
+   ​		
