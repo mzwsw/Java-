@@ -826,9 +826,189 @@
    
      **要点**
    
-     	* 由于是二叉树，需要对元素做内部排序。如果要放入TreeSet中的类没有实现Comparable接口，则会抛出异常：java.lang.ClassCastException.
-     	* TreeSet中不能放入null元素。
+     1. 由于是二叉树，需要对元素内部排序。如果要放入TreeSet中的类没有实现Comparable接口，则会抛出异常：java.lang.ClassCastException.
+     2. TreeSet中不能放入null元素。
    
 6. **迭代器**
 
-   ​		
+   ```java
+   /**
+    * 测试迭代器
+    * @author zsk
+    *
+    */
+   public class TestIterator {
+   	public static void main(String[] args) {
+   		//testList();
+   		//testSet();
+   		//testMap1();
+   		testMap2();
+   	}
+   	
+   	
+   	public static void testList() {
+   		List<String> list = new ArrayList<>();
+   		list.add("aa");
+   		list.add("bb");
+   		list.add("cc");
+   		
+   		for(Iterator<String> iter = list.iterator(); iter.hasNext();) {
+   			String temp = iter.next();
+   			System.out.println(temp);
+   		}
+   	}
+   
+   	public static void testSet() {
+   		Set<String> list = new HashSet<>();
+   		list.add("aa");
+   		list.add("bb");
+   		list.add("cc");
+   		
+   		for(Iterator<String> iter = list.iterator(); iter.hasNext();) {
+   			String temp = iter.next();
+   			System.out.println(temp);
+   		}
+   	}
+   
+   	//迭代器遍历Map方法一
+   	public static void testMap1() {
+   		Map<Integer, String> map = new HashMap<>();
+   		map.put(10, "aa");
+   		map.put(20, "bb");
+   		map.put(30, "cc");
+   		Set<Entry<Integer,String>> ss = map.entrySet();
+   		for(Iterator<Entry<Integer,String>> iter = ss.iterator(); iter.hasNext();) {
+   			Entry<Integer,String> e = iter.next();
+   			System.out.println(e.getKey() + "---" + e.getValue());
+   		}
+   	}
+   
+   	public static void testMap2() {
+   		Map<Integer, String> map = new HashMap<>();
+   		map.put(10, "aa");
+   		map.put(20, "bb");
+   		map.put(30, "cc");
+   		Set<Integer> ss = map.keySet();
+   		for(Iterator<Integer> iter = ss.iterator(); iter.hasNext();) {
+   			Integer key = iter.next();
+   			System.out.println(key + "---" + map.get(key));
+   		}	
+   	}	
+   	
+   }
+   ```
+   
+7. **遍历集合方法总结**
+
+   * 遍历List
+
+     * 普通for循环
+
+       ```java
+       for(int i = 0; i < list.sezt(); i++){
+           String temp = (String)list.get(i);
+           System.out.println(temp);
+       }
+       ```
+
+     * 增强for循环
+
+       ```java
+       for(String temp : list){
+           System.out.println(temp);
+       }
+       ```
+
+     * 使用Iterator迭代器（1）
+
+       ```java
+       for(Iterator iter = list.iterator(); iter.hashNext();){
+           String temp = (String) iter.next();
+           System.out.println(temp);
+       }
+       ```
+
+     * 使用Iterator迭代器（2）
+
+       ```java
+       Iterator iter = list.iterator();
+       while(iter.hashNext()){
+           Object obj = iter.next();
+           iter.remove();  //如果要遍历时删除集合中的元素，建议使用这种方式。
+           System.out.println(obj);
+       }
+       ```
+
+   * 遍历Set
+
+     * 增强for循环
+
+       ```java
+       for(String temp : set){
+           System.out.println(temp);
+       }
+       ```
+
+     * 使用Iterator迭代器
+
+       ```java
+       for(Iterator iter = set.iterator(); iter.hashNext();){
+           String temp = (String)iter.next();
+           System.out.println(temp);
+       }
+       ```
+
+   * 遍历Map
+
+     * 根据key获取value
+
+       ```java
+       Map<Integer, Man> maps = new HashMap<>();
+       Set<Integer> keySet = maps.keySet();
+       for(Integer id : keySet){
+           System.out.println(maps.get(id).name);
+       }
+       ```
+
+     * 使用entrySet
+
+       ```java
+       Set<Entry<Integer, Man>> ss = maps.entrySet();
+       for(Iterator iterator = ss.iterator(); iterator.hashNext();){
+           Entry e = (Entry)iterator.next();
+           System.out.println(e.getKey() + "---" + e.getValue());
+       }
+       ```
+
+8. **Collections工具类**
+
+   ​		类java.util.Collections提供了对Set、List、Map进行排序、填充、查找元素的辅助方法。
+
+   		1. void sort(List)  //对List容器内的元素排序，升序！
+     		2. void shuffle(List)  //对List容器内的元素进行随机排列。
+     		3. void reverse(List)  //对List容器内的元素进行逆序排列。
+     		4. void fill(List, Object)  //用一个特定的对象重写整个List容器。
+     		5. int binarySearch(List, Object)  //对于顺序的List容器，采用二分查找的方法查找特定对象。
+
+   ```java
+   public class Test{
+       public static void main(String[] args){
+           List<String> list = new ArrayList<String>();
+           for(int i = 0; i < 5; i++){
+               list.add("a" + i);
+           }
+           System.out.println(list);
+           Collections.shuffle(list);  //随机排列
+           System.out.println(list);
+           Collections.reverse(list);  //逆序
+           System.out.println(list);
+           Collections.sort(list);  //排序
+           System.out.println(list);
+           System.out.println(Collections.binarySearch(list, "a2")); //二分查找
+           Collections.fill(list, "hello");
+           System.out.println(list);
+       }
+   }
+   ```
+
+   
