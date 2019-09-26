@@ -188,3 +188,56 @@
    
         ​		void close()：关闭输出流对象，释放想法系统资源。
    
+2. **流分类**
+
+   1. **文件字节流**
+
+      ​		FileInputStream通过字节的方式读取文件，适合读取所有类型的文件（图像、视频、文本文件等）。Java也提供了FileReader专门读取文本文件。
+
+      ​		FileOutputStream通过字节的方式写数据到文件中，适合所有类型的文件。Java也提供了FileWriter专门写入文本文件。
+
+      **将字符串/字节数组的内容写入到文件中**
+
+      ```java
+      import java.io.FileOutputStream;
+      import java.io.IOException;
+      public class TestFileOutputStream{
+          public static void main(String[] args){
+              FileOutputStream fos = null;
+              String string = "zsk";
+              try{
+                  //true表示内容会追加到文件末尾；false表示重写整个文件内容。
+                  fos = new FileOutputStream("d:/a.txt",true);
+                  //该方法是直接将一个字节数组写入文件中；而write(int n)是写入一个字节
+                  fos.write(string.getBytes());
+              }catch(Exception e){
+                  e.printStackTrace();
+              }finally{
+                  try{
+                      if(fos != null){
+                          fos.close();
+                      }
+                  }catch(IOException e){
+                      e.printStackTrace();
+                  }
+              }
+          }
+      }
+      ```
+
+      ​		上例中用到一个write方法：void write（byte[] b)，该方法不再一个字节一个字节的写入，而是直接写入一个字节数组；另外其还有一个重载的方法：void write(byte[] b,int off,int length)，这个方法也是写入一个字节数组，但是我们可以指定从字节数组的哪个位置开始写入，写入长度是多少。
+
+      **利用文件流实现文件的复制**
+
+      ```java
+      public class TestFileCopy{
+          public static void main(String[] args){
+              //将a.txt内容拷贝到b.txt
+              copyFile("d:/a.txt","d:/b.txt");
+          }
+          /**
+           * 将src文件的内容拷贝到dec文件
+      }
+      ```
+
+      
