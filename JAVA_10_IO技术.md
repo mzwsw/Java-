@@ -237,7 +237,306 @@
           }
           /**
            * 将src文件的内容拷贝到dec文件
+           */
+          static void copyFile(String src, String dec){
+        FileInputStream fis = null;
+              FileOutputStream fos = null;
+              //为了提高效率，设置缓存数组！（读取的字节数据会暂存到该字节数组中）
+              byte[] buffer = new byte[1024];
+              int temp = 0;
+              try{
+                  fis = new FileInputStream(src);
+                  fos = new FileOutputStream(dec);
+                  //边读边写
+                  //temp指的是本次读取的真实长度，temp等于-1时表示读取结束
+                  while((temp = fis.read(buffer)) != -1){
+                      /*将缓存数组中的数据写入文件中，注意：写入的是读取的真实长度；
+                       *如果使用fos.write(buffer)方法，那么写入的长度将会是1024，即缓存
+                       *数组的长度*/
+                      fos.write(buffer,0,temp);
+                  }
+              }catch{
+                  e.printStackTrace();
+              }finally{
+                  //两个流需要分别关闭
+                  try{
+                      if(fos != null){
+                          fos.close();
+                      }
+                  }catch(IOException e){
+                      e.printStackTrace();
+                  }
+                  try{
+                      if(fis != null){
+                          fis.close();
+                      }
+                  }catch(IOException e){
+                      e.printStackTrace();
+                  }
+              }
+          }
       }
       ```
-
+      
+      **注意**：
+      
+      	* 为了减少对硬盘的读写次数，提高效率，通常设置缓存数组。相应的，读取时使用的方法为：read（byte[] b);写入时的方法为：write(byte[] b, int off, int length)。
+      	* 程序中如果遇到多个流，每个流都需要单独关闭，防止其中一个流出现异常后导致其他流无法关闭。
+      
+   2. **文件字符流**
+   
+      ​		处理文本文件，一般可以使用文件字符流，它以字符为单位进行操作。
+   
+      **使用FileReader与FileWriter实现文本文件的复制**
+   
+      ```java
+      public class TestFileCopy2{
+          public static void main(String[] args){
+              //写法和使用Stream基本一样。只不过，读取时是读取的字符。
+              FileReader fr = null;
+              FileWriter fw = null;
+              int len = 0;
+              try{
+                  fr = new FileReader("d:/a.txt");
+                  fw = new FileWriter("d:/d.txt");
+                  //为了提高效率，创建缓冲用的字符数组
+                  char[] buffer = new char[1024];
+                  //边读边写
+                  while((len = fr.read(buffer)) != -1){
+                      fw.write(buffer,0,len);
+                  }
+              }catch(FileNotFoundException e){
+                  e.printStackTrace();
+              }catch(IOException e){
+                  e.printStackTrace();
+              }finally{
+                  try{
+                      if(fw != null){
+                      	fw.close();
+                  	}
+                  }catch(IOException e){
+                      e.printStackTrace();
+                  }
+                  try{
+                      if(fr != null){
+                          fr.close();
+                      }
+                  }catch(IOException e){
+                      e.printStackTrace();
+                  }
+              }
+          }
+      }
+      ```
+   
+   3. **缓冲字节流**
+   
+      ​		Java缓冲流本身并不是具有IO流的读写与写入功能，只是在别的流（节点流或其他处理流）上加上缓冲功能提高效率，就像是把别的流包装起来，因此缓冲流是一种处理流（包装流）。
+   
+      ​		当对文件或其他数据源进行频繁的读写操作时，效率比较低，这时如果使用缓冲流就能够更高效的读写信息。因为缓冲流是先将数据缓存起来，然后当缓存区存满后或者手动刷新时再一次性的读取到程序或写入目的地。
+   
+      ​		因此，缓冲流还是很重要的，我们再IO操作时记得加上缓冲流来提升性能。
+   
+      ​		BufferedInputStream和BufferedOutputStream这两个是缓冲字节流，通过内部缓存数组来提高操作流的效率。
+   
+      **使用缓冲流实现文件的高效率复制**
+   
+      ```java
+      public class TestBufferedFileCopy1{
+          public static void main(String[] args){
+              //使用缓冲字节流实现复制
+              long time1 = System.currentTimeMillis();
+              copyFile1("D:/电影/华语/大陆/zsk.mp4","D:/电影/华语/大陆/zskllb.mp4");
+              long time2 = System.currentTimeMillis();
+              System.out.println("缓冲字节流话费的时间为：" + (time2- time1));
+          }
+          
+          /**缓冲字节流实现的文件复制方法*/
+          static void copyFile1(String src, String dec){
+              FileInputStream fis = null;
+              BufferedInputStream bis = null;
+              FileOutputStream fos = null;
+              BufferedOutputStream bos = null;
+              int temp = 0;
+              try{
+                  fis = new FileInputStream(src);
+                  fos = new FileOutputStream(dec);
+                  //使用缓冲字节流包装文件字节流，增加缓冲功能，提高效率
+                  //缓存区的大小（缓存数组的长度）默认是8192，也可以自己指定大小。
+                  bis = new BufferedInputStream(fis);
+                  bos = new BufferedOutputStream(fos);
+                  while((temp = bis.read()) != -1){
+                      bos.write(temp);
+                  }
+              }catch(Exception e){
+                  e.printStackTrace();
+              }finally{
+                  //注意：增加处理流后，注意流的关闭顺序："后开的先关"
+                  try{
+                     if(bos != null){
+                         bos.close();
+                     } 
+                  }catch(IOException e){
+                      e.printStackTrace();
+                  }
+                  try{
+                      if(bis != null){
+                          bis.close();
+                      }
+                  }catch(IOException e){
+                      e.printStackTrace();
+                  }
+                  try{
+                      if(fos != null){
+                          fos.close();
+                      }
+                  }catch(IOException e){
+                      e.printStackTrace();
+                  }
+                  try{
+                      if(fis != null){
+                          fis.close();
+                      }
+                  }catch(IOException e){
+                      e.printStackTrace();
+                  }
+              }
+          }
+          
+          /**普通字节流实现的文件复制的方法*/
+          static void copyFile2(String src, String dec){
+              FileInputStream fis = null;
+              FileOutputStream fos = null;
+              int temp = 0;
+              try{
+                  fis = new FileInputStream(src);
+                  fos = new FileOutputStream(dec);
+                  while((temp = fis.read()) != -1){
+                      fos.write(temp);
+                  }
+              }catch(Exception e){
+                  e.printStackTrace();
+              }finally{
+                  try{
+                      if(fos != null){
+                          fos.close();
+                      }
+                  }catch(IOException e){
+                      e.printStackTrace();
+                  }
+                  try{
+                      if(fis != null){
+                          fis.close();
+                      }
+                  }catch(IOException e){
+                      e.printStackTrace();
+                  }
+              }
+          }
+      }
+      ```
+   
+   4. **缓冲字符流**
+   
+      ​		BufferedReader/BufferedWriter增加了缓存机制，大大提高了读写文本文件的效率，同时，提供了更方便的按行读取的方法：readLine()；处理文本时，我们一般可以使用缓冲字符流。
+   
+      **使用BufferedReader与BufferedWriter实现文本文件的复制**
+   
+      ```java
+      public class TestBufferedFileCopy2{
+          public static void main(String[] args){
+              //注：处理文本文件时，实际开发中可以是先用如下写法，简单高效！
+              FileReader fr = null;
+              FileWriter fw = null;
+              BufferedReader br = null;
+             	BufferedWriter bw = null;
+              String tempString = "";
+              try{
+                  
+              }catch(FileNotFoundException e){
+                  e.printStackTrace();
+              }catch(IOException e){
+                  e.printStackTrace();
+              }finally{
+                  try{
+                      if(bw != null){
+                          bw.close();
+                      }
+                  }catch(IOException e1){
+                      e1.printStackTrace();
+                  }
+                  try{
+                      if(br != null){
+                          br.close();
+                      }
+                  }catch(IOException e1){
+                      e1.printStackTrace();
+                  }
+                  try{
+                      if(fw != null){
+                          fw.close();
+                      }
+                  }catch(IOException e){
+                      e.printStackTrace();
+                  }
+                  try{
+                      if(fr != null){
+                          fw.close();
+                      }
+                  }catch(IOException e){
+                      e.pringStackTrace();
+                  }
+              }
+          }
+      }
+      ```
+   
+      **注**：
+   
+      		* readLine()方法是BufferedReader特有的方法，可以对文本文件进行更加方便的读取操作。
+      		* 写入一行后要记得使用newLine()方法换行。
+   
+   5. **字节数组流**
+   
+      ​		ByteArrayInputStream和ByteArrayOutputStream经常用在需要流和数组之间转化的情况！
+   
+      ​		ByteArrayInputStream是把内存中的“某个字节数组对象”当做数据源。
+   
+      **简单测试ByteArrayInputStream的使用**
+   
+      ```java
+      public class TestByteArray{
+          public static void main(String[] args){
+              //将字符串转变成字节数组
+              byte[] b = "abcdefg".getBytes();
+              test(b);
+          }
+          public static void test(byte[] b){
+              ByteArrayInputStream bais = null;
+              StringBuilder sb = new StringBuilder();
+              int temp = 0;
+              //用于保存读取的字节数
+              int num = 0;
+              try{
+                  //该构造方法的参数是一个字节数组，这个字节数组就是数据源
+                  bais = new ByteArrayInputStream(b);
+                  while((temp = bais.read()) != -1){
+                      sb.append((char)temp);
+                      num++;
+                  }
+                  System.out.println(sb);
+                  System.out.print("读取的字节数：" + num)；
+              }finally{
+                  try{
+                      if(bais != null){
+                          bais.close();
+                      }
+                  }catch(IOException e){
+                      e.printStackTrace();
+                  }
+              }
+          }
+      }
+      ```
+   
       
