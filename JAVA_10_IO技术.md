@@ -493,8 +493,8 @@
    
       **注**：
    
-      		* readLine()方法是BufferedReader特有的方法，可以对文本文件进行更加方便的读取操作。
-      		* 写入一行后要记得使用newLine()方法换行。
+      * readLine()方法是BufferedReader特有的方法，可以对文本文件进行更加方便的读取操作。
+      * 写入一行后要记得使用newLine()方法换行。
    
    5. **字节数组流**
    
@@ -539,4 +539,513 @@
       }
       ```
    
+   6. **数据流**
+   
+      ​		数据流将“基本数据类型与字符串类型”作为数据源，从而允许程序以与机器无关的方式从低层输入输出流中操作Java基本数据类型与字符串类型。
+   
+      ​		DataInputStream和DataOutputStream提供了可以存取与机器无关的所有Java基础类型数据（如：int、double、String等）的方法。
+   
+      ​		DataInputStream和DataOutputStream是处理流，可以对其他节点流或处理流进行包装，增加一些更灵活、更高效的功能。
+   
+      ```java
+      public class TestDataStream{
+          public static void main(String[] args){
+              DataOutputStream dos = null;
+              DataInputStream dis = null;
+              FileOutputStream fos = null;
+              FileInputStream fis = null;
+              try{
+                  fos = new FileOutputStream("D:/data.txt");
+                  fis = new FileInputStream("D:/data.txt");
+                  //使用数据流对缓冲流进行包装，新增缓冲功能
+                  dos = new DataOutputStream(new BufferedOutputStream(fos));
+                  dis = new DataInputStream(new BufferedInputStream(fis));
+                  //将如下数据写入到文件中
+                  dos.writeChar('a');
+                  dos.writeInt(10);
+                  dos.writeDouble(Math.random());
+                  dos.writeBoolean(true);
+                  dos.writeUTF("张世坤");
+                  //手动刷新缓冲区；将流中数据写入到文件中
+                  dos.flush();
+                  //直接读取数据：读取的顺序要与写入的顺序一致，否则不能正确读取。
+                  System.out.println("char:" + dis.readChar());
+                  System.out.println("int:" + dis.readInt());
+                  System.out.println("double:" + dis.readDouble());
+                  System.out.println("boolean:" + dis.readBoolean());
+                  System.out.println("String:" + dis.readUTF());
+              }catch(IOException e){
+                  e.printStackTrace();
+              }finally{
+                  try{
+                      if(dos != null){
+                          dos.close();
+                      }
+                  }catch(IOException e){
+                      e.printStackTrace();
+                  }
+                  try{
+                      if(dis != null){
+                          dis.close();
+                      }
+                  }catch(IOException e){
+                      e.printStackTrace();
+                  }
+                  try{
+                      if(fos != null){
+                          fos.close();
+                      }
+                  }catch(IOException e){
+                      e.printStackTrace();
+                  }
+                  try{
+                      if(fis != null){
+                          fis.close();
+                      }
+                  }catch(IOException e){
+                      e.printStackTrace();
+                  }
+              }
+          }
+      }
+      ```
+   
+      **注意**：使用数据流时，读取的顺序一定要与写入的顺序一致，否则不能正确读取数据。
+   
+   7. **对象流**
+   
+      ​		前面的数据流只能实现对基本数据类型和字符串类型的读写，并不能读取对象（字符串除外），我们要对某个对象进行读写操作，需要新的处理流：ObjectInputStream/ObjectOutputStream。以“对象”为数据源，必须将传输的对象进行序列号与反序列化操作。
+   
+      ```java
+      public class TestObjectStream{
+          public static void main(String[] args) throws IOException, ClassNotFoundException{
+              write();
+              read();
+          }
+          /**使用对象输出流将数据写入文件*/
+          public static void write(){
+              //创建Object输出流，并包装缓冲流，增加缓冲功能
+              OutputStream os = null;
+              BufferedOutputStream bos = null;
+              ObjectOutputStream oos = null;
+              try{
+                  os = new FileOutputStream(new File("d:/bjsxt.txt"));
+                  bos = new BufferedOutputStream(os);
+                  oos = new ObjectOutputStream(bos);
+                  //使用Object输出流
+                  //对象流也可以对基本数据类型进行读写操作
+                  oos.writeInt(12);
+                  oos.writeDouble(3.14);
+                  oos.writeChar('A');
+                  oos.writeBoolean(true);
+                  oos.writeUTF("张世坤");
+                  //对象流能够对对象数据类型进行读写操作
+                  //Date是系统提供的类，已经实现了序列号接口
+                  //如果是自定义类，则需要自己实现序列号接口
+                  oos.writeObject(new Date());
+              }catch(IOException e){
+                  e.printStackTrace();
+              }finally{
+                  //关闭输出流
+                  if(oos != null){
+                      try{
+                          oos.close();
+      				}catch(IOException e){
+                          e.printStackTrace();
+                      }
+                  }
+                  if(bos != null){
+                      try{
+                          bos.close();
+      				}catch(IOException e){
+                          e.printStackTrace();
+                      }
+                  }
+                  if(os != null){
+                      try{
+                          os.close();
+      				}catch(IOException e){
+                          e.printStackTrace();
+                      }
+                  }
+              }
+          }
+          
+          /**使用对象输入流将数据读入程序*/
+          public static void read(){
+              //创建Object输入流
+              InputStream is = null;
+              BufferedInputStream bis = null;
+              ObjectInputStream ois = null;
+              try{
+                  is = new FileInputStream(new File("d:/bjsxt.txt"));
+                  bis = new BufferedInputStream(is);
+                  ois = new ObjectInputStream(bis);
+                  //使用Object输入流按照写入顺序读取
+                  System.out.println(ois.readInt());
+                  System.out.println(ois.readDouble());
+                  System.out.println(ois.readChar());
+                  System.out.println(ois.readBoolean());
+                  System.out.println(ois.readUTF());
+                  System.out.println(ois.readObject().toString());
+              }catch(ClassNotFoundException e){
+                  e.pringStackTrace();
+              }catch(IOException e){
+                  e.printStackTrace();
+              }finally{
+                  //关闭流
+                  if(ois != null){
+                   	try{
+                          ois.close();
+                      }catch(IOException e){
+                          e.printStackTrace();
+                      }
+                  }
+                  if(bis != null){
+                   	try{
+                          bis.close();
+                      }catch(IOException e){
+                          e.printStackTrace();
+                      }
+                  }
+                  if(is != null){
+                   	try{
+                          is.close();
+                      }catch(IOException e){
+                          e.printStackTrace();
+                      }
+                  }
+              }
+          }
+      }
+      ```
+   
+      **注意**：
+   
+      * 对象流不仅可以读写对象，还可以读写基本数据类型。
+      * 使用对象流读写对象时，该对象必须序列化与反序列化。
+      * 系统提供的类（如Date等）已经实现了序列号接口，自定义类必须手动实现序列化接口。
+   
+   8. **转换流**
+   
+      ​		InputStreamReader/OutputStreamWriter用来实现将字节流转化为字符流。
+   
+      ```java
+      public class TestConvertStream{
+          public static void main(String[] args){
+              //创建字符输入和输出流：使用转换流将字节流转换成字符流
+              BufferedReader br = null;
+              BufferedWriter bw = null;
+              try{
+                  br = new BufferedReader(new InputStreamReader(System.in));
+                  bw = new BufferedWriter(new OutputStreamWriter(System.out));
+                  //使用字符输入和输出流
+                  String str = br.readLine();
+                  //一直读取，直到用户输入exit为止
+                  while(!"exit".equals(str)){
+                      //写到控制台
+                      bw.write(str);
+                      bw.newLine();//写一行后换行
+                      bw.flush();//手动刷新
+                      //再读一行
+                      str = br.readLine();
+                  }
+              }catch(IOException e){
+                  e.printStackTrace();
+              }finally{
+                  //关闭字符输入和输出流
+                  if(br != null){
+                      try{
+                          br.close();
+                      }catch(IOException e){
+                          e.printStackTrace();
+                      }
+                  }
+                  if(bw != null){
+                      try{
+                          bw.close();
+                      }catch(IOException e){
+                          e.printStackTrace();
+                      }
+                  }
+              }
+          }
+      }
+      ```
+   
+3. **序列化与反序列化**
+
+   1. **定义**
+
+      ​		当两个进行远程通信时，彼此可以发送各种类型的数据。无论是何种类型的数据，都会以二进制序列的形式在网络上传送。比如，我们可以通过http协议发送字符串信息；我们也可以在网络上直接发送Java对象。发送方需要把这个Java对象转换为字节序列，才能在网络上传送；接收方则需要把字节序列再恢复为Java对象才能正常读取。
+
+      ​		把Java对象转换为字节序列的过程称为对象的序列化。把字节序列恢复为Java对象的过程称为对象的反序列化。
+
+      ​		序列化的作用：
+
+      * 持久化：把对象的字节序列永久地保存到硬盘上，通常存放在一个文件中。以后服务器session管理，hibernate将对象持久化实现。
+      * 网络通信：在网络上传送对象的字节序列。比如：服务器之间的数据通信。
+
+   2. **序列化涉及的类和接口**
+
+      ​		ObjectOutputStream代表对象输出流，它的writeObject（Object obj）方法可对参数指定的obj对象进行序列化，把得到的字节序列写到一个目标输出流中。
+
+      ​		ObjectInputStream代表对象输入流，它的readObject()方法从一个源输入流中读取字节序列，再把他们反序列化为一个对象，并将其返回。
+
+      ​		只有实现了Serializable接口的类的对象才能被序列化。Serializable接口是一个空接口，只起到标记作用。
+      
+   3. **序列化/反序列化的步骤和实例**
+   
+      ```java
+      //Person类实现Serializable接口后，Person对象才能被序列化
+      class Person implements Serializable{
+          //添加序列化ID，它决定着是否能够成功反序列化！
+          private static final long serialVersionUID = 1L;
+          int age;
+          boolean isMan;
+          String name;
+          
+          public Person(int age, boolean isMan, String name){
+              super();
+              this.age = age;
+              this.isMan = isMan;
+              this.name = name;
+          }
+          
+          @Override
+          public String toString(){
+              return "Person [age=" + age + ",isMan=" + isMan + ",name=" + name + "]";
+          }
+      }
+      
+      public class TestSerializable{
+          public static void main(String[] args){
+              FileOutputStream fos = null;
+              ObjectOutputStream oos = null;
+              ObjectInputStream ois = null;
+              FileInputStream fis = null;
+              try{
+                  //通过ObjectOutputStream将Person对象的数据写入到文件中，即序列化。
+                  Person person = new Person(18,true,"zsk");
+                  //序列化
+                  fos = new FileOutputStream("d:/c.txt");
+                  oos = new ObjectOutputStream(fos);
+                  oos.writeObject(person);
+                  oos.flush();
+                  //反序列化
+                  fis = new FileInputStream("d:/c.txt");
+                  //通过ObjectInputStream将文件中二进制数据反序列化为Person对象：
+                  ois = new ObjectInputStream(fis);
+                  Person p = (Person) ois.readObject();
+                  System.out.println(p);
+              }catch(ClassNotFoundException e){
+                  e.printStackTrace();
+              }catch(IOException e){
+                  e.printStackTrace();
+              }finally{
+                  if (oos != null) {
+                      try {
+                          oos.close();
+                      } catch (IOException e) {
+                          e.printStackTrace();
+                      }
+                  }
+                  if (fos != null) {
+                      try {
+                          fos.close();
+                      } catch (IOException e) {
+                          e.printStackTrace();
+                      }
+                  }
+                  if (ois != null) {
+                      try {
+                          ois.close();
+                      } catch (IOException e) {
+                          e.printStackTrace();
+                      }
+                  }
+                  if (fis != null) {
+                      try {
+                          fis.close();
+                      } catch (IOException e) {
+                          e.printStackTrace();
+                      }
+                  }
+              }
+          }
+      }
+      ```
+   
+      **注意**：
+   
+      * static属性不参与序列化
+      * 对象中的某些属性如果不想被序列化，不能使用static，而是使用transient修饰。
+      * 为了防止读和写的序列化ID不一致，一般指定一个固定的序列化ID。
+   
+4. **装饰器**
+
+   1. **装饰器模式**
+
+      ​		装饰器模式是GOF23种设计模式中较为常用的一种模式。它可以实现对原有类的包装和装饰，使新的类具有更强的功能。
+
+      ```java
+      class Iphone{
+          private String name;
+          public Iphone(String name){
+              this.name = name;
+          }
+          public void show(){
+              System.out.println("我是" + name + ",可以在屏幕上显示")；
+          }
+      }
+      
+      class TouyingPhone{
+          public Iphone phone;
+          public TouyingPhone(Iphone p){
+              this.phone = p;
+          }
+          //功能更前的方法
+          public void show(){
+              phone.show();
+              System.out.println("还可以投影，在墙壁上显示")；
+          }
+      }
+      
+      public class TestDecoration{
+          public static void main(String[] args){
+              Iphone phone = new Iphone("iphone30");
+              phone.show();
+              System.out.println("============装饰后：");
+              TouyingPhone typhone = new TouyingPhone(phone);
+              typhone.show();
+          }
+      }
+      ```
+
+   2. **IO流体系中的装饰器模式**
+
+      ​		IO流体系中大量使用了装饰器模式，让流具有更强的功能、更强的灵活性。比如
+
+      > FileInputStream fis = new FileInputStream(src);
+      >
+      > BufferedInputStream bis = new BufferedInputStream(fis);
+
+      ​		显然BufferedInputStream装饰了原有的FileInputStream，让普通的FileInputStream也具备了缓存功能，提高了效率。
+
+5. **Apache IOUtils和FileUtils的使用**
+
+   ​		Apache-commons工具包中提供了IOUtils/FileUtils，可以让我们非常方便的对文件和目录进行操作。类库中提供了更加简单、功能更加强大的文件操作和IO流操作功能。
+
+   1. **FileUtils的妙用**
+
+      ​		常用方法介绍
+
+      cleanDirectory：清空目录，但不删除目录
+
+      contentEquals：比较两个文件的内容是否相同
+
+      copyDirectory：将一个目录内容拷贝到另一个目录。可以通过FileFilter过滤需要拷贝的文件
+
+      copyFile：讲一个文件拷贝到一个新地址
+
+      copyFileToDirectory：讲一个文件拷贝到某个目录下
+
+      copyInputStreamToFile：讲一个输入流中的内容拷贝到某个文件
+
+      deleteDirectory：删除目录
+
+      deleteQuietly：删除文件
+
+      listFiles：列出指定目录下的所有文件
+
+      openInputStream：打开指定文件的输入流
+
+      readFileToString：将文件内容作为字符串返回
+
+      readLines：将文件内容按行返回到一个字符串数组中
+
+      size：返回文件或目录的大小
+
+      write：将字符串内容直接写到文件中
+
+      writeByteArrayToFile：将字节数组内容写到文件中
+
+      writeLines：将容器中的元素的toString方法返回的内容一次写入文件中
+
+      writeStringToFile：将字符串内容写到文件中
+
+      **读取文件内容，并输出到控制台（只需一行代码）**
+
+      ```java
+      import java.io.File;
+      import org.apache.commons.io.FileUtils;
+      public class TestUtils1{
+          public static void main(String[] args) throws Exception {
+              String content = FileUtils.readFileToString(new File("d:/a.txt"),"gbk");
+              System.out.println(content);
+          }
+      }
+      ```
+
+      **目录拷贝，并使用FileFilter过滤目录和以html结尾的文件**
+
+      ```java
+      public class TestUtils2{
+          public static void main(String[] args) throws Exception {
+              FileUtils.copyDirectory(new File("d:/aaa"),new File("d:/bbb"),new FileFilter(){
+                  @Override
+                  public boolean accept(File pathname){
+                      //使用FileFilter过滤目录和以html结尾的文件
+                      if(pathname.isDirectory() || pathname.getName().endsWith("html")){
+                          return true;
+                      }else{
+                          return false;
+                      }
+                  }
+              });
+          }
+      }
+      ```
+
+   2. **IOUtils的妙用**
+
+      buffer方法：将传入的流进行包装，变成缓冲流。并可以通过参数指定缓冲大小。
+
+      closeQueitly方法：关闭流。
+
+      contentEquals方法：比较两个流中的内容是否一致。
+
+      copy方法：将输入流中的内容拷贝到输出流中，并可以指定字符编码。
+
+      copyLarge方法：将输入流中的内容拷贝到输出流中，适合大于2G内容的拷贝。
+
+      lineIterator方法：返回可以迭代每一行内容的迭代器。
+
+      read方法：将输入流中的部分内容读入到字节数组中。
+
+      readFully方法：将输入流中的所有内容读入到字节数组中。
+
+      readLine方法：读入输入流内容中的一行。
+
+      toBufferedInputStream，toBufferedReader：将输入转为带缓存的输入流。
+
+      toByteArray，toCharArray：将输入流的内容转为字节数组、字符数组。
+
+      toString：将输入流或数组中的内容转化为字符串。
+
+      write方法：向流里面写入内容。
+
+      writeLine方法：向流里面写入一行内容。
+
+      **IOUtils的方法**
+
+      ```java
+      public class TestUtils3{
+          public static void main(String[] args) throws Exception {
+              String content = IOUtils.toString(new FileInputStream("d:/a.txt"),"gbk");
+              System.out.println(content);
+          }
+      }
+      ```
+
       
