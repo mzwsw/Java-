@@ -728,8 +728,10 @@
    
    8. **转换流**
    
-      ​		InputStreamReader/OutputStreamWriter用来实现将字节流转化为字符流。
+      ​		InputStreamReader：将包含字节（用某种字符编码方式表示的字符）的输入流转换成可以产生Unicode码元的读入器。（字节-->字符）
    
+      ​		OutputStreamWriter：将使用选定的字符编码方式，把Unicode字符流转换成字节流。（字符-->字节）
+      
       ```java
       public class TestConvertStream{
           public static void main(String[] args){
