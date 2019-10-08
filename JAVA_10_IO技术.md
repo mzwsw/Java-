@@ -906,7 +906,7 @@
           public TouyingPhone(Iphone p){
               this.phone = p;
           }
-          //功能更前的方法
+          //功能更强  的方法
           public void show(){
               phone.show();
               System.out.println("还可以投影，在墙壁上显示")；
