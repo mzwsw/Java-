@@ -338,3 +338,494 @@
    * **线程同步的概念**
 
      ​		处理多线程问题时，多个线程访问同一个对象，并且某些线程还想修改这个对象。这时候，我们就需要用到“线程同步”。线程同步其实就是一种等待机制，多个需要同时访问此对象的线程进入这个对象的等待池形成队列，等待前面的线程使用完毕后，下一个线程再使用。
+     
+     **示例：多线程操作同一个对象（未使用线程同步）----会出错！！！！！！！**
+     
+     ```java
+     public class TestSync{
+         public static void main(String[] args){
+             Account a1 = new Account(100,"高");
+             Drawing draw1 = new Drawing(80,a1); //定义取钱线程对象；
+             Drawing draw2 = new Drawing(80,a1);//定义取钱线程对象；
+             draw1.start(); //你取钱
+             draw2.start(); //你老婆取钱
+         }
+     }
+     
+     /**
+      * 简单表示银行账户
+      */
+     class Account{
+         int money;
+         String aname;
+         
+         public Account(int money, String aname){
+             super();
+             this.money = money;
+             this.aname = aname;
+         }
+     }
+     /**
+      * 模拟提款操作
+      */
+     class Drawing extends Thread{
+         int drawingNum; //取多少钱
+         Account account; //取钱的账户
+         int expenseTotal; //总共取的钱数
+         
+         public Drawing(int drawingNum, Account account){
+             super();
+             this.drawingNum = drawingNum;
+             this.account = account;
+         }
+         
+         @Override
+         public void run(){
+             if(account.money - drawingNum < 0){
+                 return;
+             }
+             try{
+                 Thread.sleep(1000); //判断完后阻塞。其他线程开始运行。
+             }catch(InterruptedException e){
+                 e.printStackTrace();
+             }
+             account.money -= drawingNum;
+             expenseTotal += drawingNum;
+             System.out.println(this.getName() + "--账户余额：" + account.money);
+             System.out.println(this.getName() + "--总共取了：" + expenseTotal);
+         }
+     }
+     ```
+     
+   * **实现线程同步**
+   
+     ​		由于同一进程的多个线程共享同一块存储空间，在带来方便的同时，也带来了访问冲突的问题。Java语言提供了专门机制以解决这种冲突，有效避免了同一个数据对象被多个线程同时访问造成的这种问题。
+   
+     ​		由于我们可以通过private关键字来保证数据对象只能被方法访问，所以我们只需针对方法提出一套机制，这套机制就是synchronized关键字，它包括两种用法：synchronized方法和synchronized块。
+   
+     * **synchronized方法**
+   
+       ​		通过在方法声明中加入synchronized关键字来声明，语法如下：
+   
+       > public synchronized void accessVal(int newVal);
+   
+       ​		synchronized方法控制对“对象的类成员变量”的访问：每个对象对应一把锁，每个synchronized方法都必须获得调用该方法的对象的锁方能执行，否则所属线程阻塞，方法一旦执行，就独占该锁，直到从该方法返回时才将锁释放，此后被阻塞的线程方能获得该锁，重新进入可执行状态。
+   
+     * **synchronized块**
+   
+       ​		synchronized方法的缺陷：若将一个大的方法声明为synchronized将会大大影响效率。
+   
+       ​		Java为我们提供了更好的解决办法，那就是synchronized块。块可以让我们精确的控制到具体的“成员变量”，缩小同步的范围，提高效率。
+   
+       ​		synchronized块：通过synchronized关键字来声明synchronized块，语法如下：
+   
+       >synchronized(syncObject){
+       >
+       >​	//允许访问控制的代码；
+       >
+       >}
+   
+       **示例：多线程操作同一个对象（使用线程同步）**
+   
+       ```java
+       public class TestSync{
+           public static void main(String[] args){
+               Account a1 = new Account(100,"高");
+               Drawing draw1 = new Drawing(80,a1); //定义取钱线程对象；
+               Drawing draw2 = new Drawing(80,a1);//定义取钱线程对象；
+               draw1.start(); //你取钱
+               draw2.start(); //你老婆取钱
+           }
+       }
+       
+       /**
+        * 简单表示银行账户
+        */
+       class Account{
+           int money;
+           String aname;
+           
+           public Account(int money, String aname){
+               super();
+               this.money = money;
+               this.aname = aname;
+           }
+       }
+       /**
+        * 模拟提款操作
+        */
+       class Drawing extends Thread{
+           int drawingNum; //取多少钱
+           Account account; //取钱的账户
+           int expenseTotal; //总共取的钱数
+           
+           public Drawing(int drawingNum, Account account){
+               super();
+               this.drawingNum = drawingNum;
+               this.account = account;
+           }
+           
+           @Override
+           public void run(){
+               synchronized(account){
+                   if(account.money - drawingNum < 0){
+                   System.out.println(this.getName() + "取款，余额不足！" );
+                   return;
+               	}
+               	try{
+                   	Thread.sleep(1000); //判断完后阻塞。其他线程开始运行。
+               	}catch(InterruptedException e){
+               	    e.printStackTrace();
+               	}
+               	account.money -= drawingNum;
+              	 	expenseTotal += drawingNum;
+               }
+               System.out.println(this.getName() + "--账户余额：" + account.money);
+               System.out.println(this.getName() + "--总共取了：" + expenseTotal);
+           }
+       }
+       ```
+   
+       ​		“synchronized（account）”意味着线程需要获得account对象的“锁”才有资格运行同步块中的代码。Account对象的“锁”也称为“互斥锁”，在同一时刻只能被一个线程使用。A线程拥有锁，则可以调用“同步块”中的代码；B线程没有锁，则进入account对象的“锁池队列”等待，直到A线程使用完毕释放了account对象的锁，B线程得到锁才可以开始调用“同步块”中的代码。
+   
+   * **死锁及解决方案**
+   
+     * **死锁的概念**
+   
+       ​		“死锁”指的是：多个线程各自占有一些共享资源，并且互相等待其他线程占用的资源才能进行，而导致两个或者多个线程都在等待对方释放资源，都停止执行的情形。
+   
+       ​		因此，某一个同步块需要同时拥有“两个以上对象的锁”时，就可能发生“死锁”的问题。
+   
+       **示例：死锁问题演示(两线程都在等对方的资源，都处于停止状态）**
+   
+       ```java
+       class Lipstick{
+           //口红类
+       }
+       class Mirror{
+           //镜子类
+       }
+       class Makeup extends Thread{//化妆类继承了Thread类
+           int flag;
+           String girl;
+           static Lipstick lipstick = new Lipstick();
+           static Mirror mirror = new Mirror();
+           
+           @Override
+           public void run(){
+               doMakeup();
+           }
+           
+           void doMakeup(){
+           	if(flag == 0){
+                   synchronized(lipstick){ //需要得到口红的“锁”；
+                       System.out.println(girl + "拿着口红！");
+                       try{
+                           Thread.sleep(1000);
+                       }catch(InterruptedException e){
+                           e.printStackTrace();
+                       }
+                       
+                       synchronized(mirror){ //需要得到镜子的“锁”
+                           System.out.println(girl + "拿着镜子！");
+                       }
+                   }
+               }else{
+                   synchronized(mirror){
+                       System.out.println(girl + "拿着镜子！");
+                       try{
+                           Thread.sleep(2000);
+                       }catch(InterruptedException e){
+                           e.printStackTrace();
+                       }
+                       synchronized(lipstick){
+                           System.out.println(girl + "拿着口红！");
+                       }
+                   }
+               }
+           }
+       }
+       
+       public class TestDeadLock{
+           public static void main(String[] args){
+               Makeup m1 = new Makeup(); //大丫的化妆线程；
+               m1.girl = "大丫";
+               Makeup m2 = new Makeup(); //小丫的化妆线程；
+               m2.girl = "小丫";
+               m2.flag = 1;
+               m1.start();
+               m2.start();
+           }
+       }
+       ```
+   
+     * **死锁的解决方法**
+   
+       ​		死锁是由于“同步块需要同时持有多个对象锁“造成的，要解决这个问题，思路很简单，就是：**同一个代码块，不要同时持有两个对象锁。**
+   
+       **示例：死锁问题的解决**
+   
+       ```java
+       class Lipstick{
+           //口红类
+       }
+       class Mirror{
+           //镜子类
+       }
+       class Makeup extends Thread{//化妆类继承了Thread类
+           int flag;
+           String girl;
+           static Lipstick lipstick = new Lipstick();
+           static Mirror mirror = new Mirror();
+           
+           @Override
+           public void run(){
+               doMakeup();
+           }
+           
+           void doMakeup(){
+           	if(flag == 0){
+                   synchronized(lipstick){ //需要得到口红的“锁”；
+                       System.out.println(girl + "拿着口红！");
+                       try{
+                           Thread.sleep(1000);
+                       }catch(InterruptedException e){
+                           e.printStackTrace();
+                       }
+                   }
+                   synchronized(mirror){ //需要得到镜子的“锁”
+                       System.out.println(girl + "拿着镜子！");
+                   }
+               }else{
+                   synchronized(mirror){
+                       System.out.println(girl + "拿着镜子！");
+                       try{
+                           Thread.sleep(2000);
+                       }catch(InterruptedException e){
+                           e.printStackTrace();
+                       }
+                   }
+                   synchronized(lipstick){
+                       System.out.println(girl + "拿着口红！");
+                   }
+               }
+           }
+       }
+       
+       public class TestDeadLock{
+           public static void main(String[] args){
+               Makeup m1 = new Makeup(); //大丫的化妆线程；
+               m1.girl = "大丫";
+               Makeup m2 = new Makeup(); //小丫的化妆线程；
+               m2.girl = "小丫";
+               m2.flag = 1;
+               m1.start();
+               m2.start();
+           }
+       }
+       ```
+   
+6. **线程并发协作（生产者/消费者模式）**
+
+   ​		多线程环境下，我们经常需要多个线程的并发和协作。这个时候，就需要了解一个重要的多线程并发协作模型“生产者/消费者模式”。
+
+   * **什么是生产者？**
+
+     ​		生产者指的是负责生产数据的模块（这里模块可能是：方法、对象、线程、进程）。
+
+   * **什么是消费者？**
+
+     ​		消费者指的是负责处理数据的模块（这里模块可能是：方法、对象、线程、进程）。
+
+   * **什么是缓冲区？**
+
+     ​		消费者不能直接使用生产者的数据，他们之间有个“缓冲区”。生产者将生产好的数据放入“缓冲区”，消费者从“缓冲区”拿要处理的数据。
+
+     ​		缓冲区是实现并发的核心，缓冲区的设置有3个好处：
+
+     * **实现线程的并发协作**
+
+       ​		有了缓冲区以后，生产者线程只需要往缓冲区里面放置数据，而不需要管消费者的情况：同样，消费者只需要从缓冲区拿数据处理即可，也不需要管生产者的情况。这样就从逻辑上实现了“生产者线程”和“消费者线程”的分离。
+
+     * **解耦了生产者和消费者**
+
+       ​		生产者不需要和消费者直接打交道。
+
+     * **解决忙闲不均，提高效率**
+
+       ​		生产者生成数据慢时，缓冲区仍有数据，不影响消费者消费；消费者处理数据慢时，生产者仍然可以继续往缓冲区里面放数据。
+
+   **示例：生产者与消费者模式**
+
+   ```java
+   public class TestProduce{
+       public static void main(String[] args){
+           SyncStack sStack = new SyncStack(); //定义缓冲区对象；
+           Shengchan sc = new Shengchan(sStack); //定义生产线程；
+           Xiaofei xf = new Xiaofei(sStack); //定义消费线程；
+           sc.start();
+           xf.start();
+       }
+   }
+   
+   class Mantou{ //馒头
+       int id;
+       
+       Mantou(int id){
+           this.id = id;
+       }
+   }
+   
+   class SyncStack{ //缓冲区（相当于：馒头筐）
+       int index = 0;
+       Mantou[] ms = new Mantou[10];
+       
+       public synchronized void push(Mantou m){
+           while(index == ms.length){
+               //说明馒头筐满了
+               try{
+                   //wait后，线程会将持有的锁释放，进入阻塞状态；
+                   //这样其他需要锁的线程就可以获得锁；
+                   this.wait();
+                   //这里的含义是执行此方法的线程暂停，进入阻塞状态；
+                   //等消费者消费了馒头再生产。
+               }catch(InterruptedException e){
+                   e.printStackTrace();
+               }
+           }
+           //唤醒在当前对象等待池中等待的第一个线程。
+           //notifyAll叫醒所有在当前对象等待池中等待的所有线程。
+           this.notify();
+           //如果不唤醒的话，以后这两个线程都会进入等待线程，没有人唤醒。
+           ms[index] = m;
+           index++;
+       }
+       
+       public synchronized Mantou pop(){
+           while(index == 0){
+               //如果馒头筐是空的；
+               try{
+                   //如果馒头筐是空的，就暂停此消费线程（因为没什么可消费的）。
+                   this.wait();  //等生产线程生产完再消费。
+               }catch(InterruptedException e){
+                   e.printStackTrace();
+               }
+           }
+           this.notify();
+           index--;
+           return ms[index];
+       }
+   }
+   
+   class Shengchan extends Thread{
+       SyncStack ss = null;
+       
+       public Shengchan(SyncStack ss){
+           this.ss = ss;
+       }
+       
+       @Override
+       public void run(){
+           for(int i = 0; i < 10; i++){
+               System.out.println("生产馒头：" + i);
+               Mantou m = new Mantou(i);
+               ss.push(m);
+           }
+       }
+   }
+   
+   class Xiaofei extends Thread{
+       SyncStack ss = null;
+       public Xiaofei(SyncStack ss){
+           this.ss = ss;
+       }
+       
+       @Override
+       public void run(){
+           for(int i = 0; i < 10; i++){
+               Mantou m = ss.pop();
+               System.out.println("消费馒头:" + i);
+           }
+       }
+   }
+   ```
+
+   **线程并发协作总结**
+
+   ​		线程并发协作（也叫线程通信），通常用于生产者/消费者模式，情景如下：
+
+   1. 生产者和消费者共享同一个资源，并且生产者和消费者之间相互依赖，互为条件。
+
+   2. 对于生产者，没有生产产品之前，消费者要进入等待状态。而生产了产品后，又需要马上通知消费者消费。
+
+   3. 对于消费者，在消费之后，要通知生产者已经消费结束，需要继续生产新产品以供消费。
+
+   4. 在生产者消费者问题中，仅有synchronized是不够的。
+
+      ·synchronized可阻止并发更新同一个共享资源，实现了同步；
+
+      ·synchronized不能用来实现不同线程之间的消息传递（通信）。
+
+   5. 那线程是通过哪些方法来进行消息传递呢？
+
+      final void wait()		表示线程一直等待，直到得到其他线程通知
+
+      void wait(long timeout)		线程等待指定毫秒参数的时间
+
+      final void wait(long timeout, int nanos)		线程等待指定毫秒、微秒的时间
+
+      final void notify()		唤醒一个处于等待状态的线程
+
+      final void notifyAll()		唤醒同一个对象上所有调用wait()方法的线程，优先级高的线程优先运行
+
+   6. 以上方法均是java.lang.Object类的方法
+
+   ​    **都只能在同步方法或同步代码块中使用，否则会抛出异常**
+
+   **建议**
+
+   ​		实际开发中，尤其是“架构设计“中，会大量使用这个模式。
+
+7. **任务定时调度**
+
+   ​		通过Timer和Timetask，我们可以实现定时启动某个线程。
+
+   **java.util.Timer**
+
+   ​		在这种实现方式中，Timer类作用是类似闹钟的功能，也就是定时或者每隔一定时间出发一次线程。其实，Timer类本身实现的就是一个线程，只是这个线程是用来实现调用其他线程的。
+
+   **java.util.TimerTask**
+
+   ​		TimerTask类是一个抽象类，该类实现了Runnable接口，所以该类具备多线程的能力。
+
+   ​		在这种实现方式中，通过继承TimerTask使该类获得多线程的能力，将需要多线程执行的代码书写在run方法内部，然后通过TImer类启动线程的执行。
+
+   **示例：java.util.Timer的使用**
+
+   ```java
+   public class TestTimer{
+       public static void main(String[] args){
+           Timer t1 = new Timer(); //定义计时器
+           MyTask task1 = new MyTask(); //定义任务；
+           t1.schedule(task,3000); //3秒后执行
+           //t1.schedule(task1,5000,1000); //5秒以后每隔1秒执行一次
+           //GregorianCalendar calendar1 = new GregorianCalendar(2010,0,5,14,36,57);
+           //t1.schedule(task1,calendar1.getTime()); //指定时间定时执行
+       }
+   }
+   
+   class MyTask extends TimerTask{
+       //自定义线程类继承TimerTask类；
+       public void run(){
+           for(int i = 0; i < 10; i++){
+               System.out.println("任务1：" + i);
+           }
+       }
+   }
+   ```
+
+   ​		在实际使用时，一个Timer可以启动任意多个TimerTask实现的线程，但是多个线程之间会存在阻塞。所以如果多个线程之间需要完全独立的话，最后还是写一个Timer启动一个TimerTask实现。
+
+   **建议**
+
+   ​		实际开发中，我们使用开源框架quanz，更加方便的实现任务定时调度。实际上，quanz底层原理就是我们这里介绍的内容。
