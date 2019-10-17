@@ -79,6 +79,7 @@
      **注意事项**
 
      		1. 127.0.0.1	本机地址
+
        		2. 192.168.0.0-192.168.255.255为私有地址，属于非注册地址，专门为组织机构内部使用。
 
    * **端口**
@@ -201,4 +202,384 @@
      }
      ```
 
+   * **InetSocketAddress**
+   
+     **作用：**包含IP和端口信息，常用于Socket通信。此类实现IP套接字地址（IP地址+端口号），不依赖任何协议。
+   
+     **示例：InetSocketAddress的使用**
+   
+     ```java
+     import java.net.InetSocketAddress;
+     public class Test4{
+         public static void main(String[] args){
+             InetSocketAddress socketAddress = new InetSocketAddress("127.0.0.1",8080);
+             InetSocketAddress socketAddress2 = new InetSocketAddress("localhost",9090);
+             System.out.println(socketAddress.getHosetName());
+             System.out.println(socketAddress2.getAddress());
+         }
+     }
+     ```
+   
+   * **URL类**
+   
+     ​		IP地址唯一标识了Internet上的计算机，而URL则标识了这些计算机上的资源。类URL代表一个统一资源定位符，它是指向互联网“资源”的指针。资源可以是简单的文件或目录，也可以是对更复杂对象的引用，例如对数据库或搜索引擎的查询。
+   
+     ​		为了方便程序员编程，JDK中提供了URL类，该类的全名是java.net.URL，有了这样一个类，就可以使用它的各种方法来对URL对象进行分割、合并等处理。
+   
+     **示例：URL类的使用**
+   
+     ```java
+     import java.net.MalformedURLException;
+     import java.net.URL;
+     public class Test5{
+         public static void main(String[] args) throws MalformedURLException{
+             URL u = new URL("http://www.google.cn:80/webhp#aa?canhu=33");
+             System.out.println("获取与此url关联的协议的默认端口：" + u.getDefaultPort());
+             System.out.println("getFile:" + u.getFile()); //端口号后面的内容
+             System.out.println("主机名：" + u.getHost());  //www.google.cn
+             System.out.println("路径：" + u.getPath()); //端口号后，参数前的内容
+             //如果www.google.cn:80 则返回80。否则返回-1
+             System.out.println("端口：" + u.getPort());
+             System.out.println("协议：" + u.getProtocol());
+             System.out.println("参数部分：" + u.getQuery());
+             System.out.println("锚点：" + u.getRef());
+             
+             URL u1 = new URL("http://www.abc/com/aa/");
+             URL u2 = new URL(u,"2.html"); //相对路径构建url对象
+             System.out.println(u2.toString()); //http://www.abc.com/aa/2.thml
+         }
+     }
+     ```
+   
+     **最简单的网络爬虫**
+   
+     ```java
+     import java.io.BufferedReader;
+     import java.io.IOException;
+     import java.io.InputStream;
+     import java.io.InputStreamReader;
+     import java.net.MalformedURLException;
+     import java.net.URL;
+     
+     public class TestSpider {
+     	public static void main(String[] args) {
+     		
+     	}
+     	
+     	//网络爬虫
+     	static void basicSpider() {
+     		URL url = null;
+     		InputStream is = null;
+     		BufferedReader br = null;
+     		StringBuilder sb = new StringBuilder();
+     		String temp = "";
+     		try {
+     			url = new URL("http://www.baidu.com");
+     			is = url.openStream();
+     			br = new BufferedReader(new InputStreamReader(is));
+     			/*
+     			 * 这样就可以将网络内容下载到本地机器。
+     			 * 然后进行数据分析，建立索引。这也是搜索引擎的第一步。
+     			 */
+     			while((temp = br.readLine()) != null) {
+     				sb.append(temp);
+     			}
+     			System.out.println(sb);
+     		}catch(MalformedURLException e) {
+     			e.printStackTrace();
+     		}catch(IOException e) {
+     			e.printStackTrace();
+     		}finally {
+     			try {
+     				br.close();
+     			}catch(IOException e){
+     				e.printStackTrace();
+     			}
+     			try {
+     				is.close();
+     			}catch(IOException e) {
+     				e.printStackTrace();
+     			}
+     		}
+     	}
+     }
+     ```
+   
+   * **基于TCP协议的Socket编程和通信**
+   
+     ​		在网络通讯中，第一次主动发起通讯的程序被称为客户端（Client）程序，简称客户端，而在第一次通讯中等待连接的程序被称作服务器端（Server）程序，简称服务器。一旦通讯建立，则客户端和服务器端完全一样，没有本质区别。
+   
+     **"请求-响应"模式**
+   
+     1. Socket类：发送TCP消息。
+     2. ServerSocket类：创建服务器
+   
+     ***
+   
+     ​		套接字是一种进程间的数据交换机制。这些进程既可以在同一机器上，也可以在通过网络连接的不同机器上。套接字起到通信端点的作用。单个套接字是一个端点，而一对套接字则构成一个双向通信信道，使非关联进程可以在本地或通过网络进行数据交换。一旦建立套接字连接，数据即可在相同或不同的系统中双向或单向发送，直到其中一个端点关闭连接。套接字与主机地址和端口地址相关联。主机地址就是客户端或服务器程序所在的主机的IP地址。端口地址是指客户端或服务器程序使用的主机的通信端口。
+   
+     ​		在客户端和服务器中，分别创建独立的Socket，并通过Socket的属性，将两个Socket进行连接，这样，客户端和服务器通过套接字所建立的连接使用输入输出流进行通信。
+   
+     ​		TCP/IP套接字是最可靠的双向流协议，使用TCP/IP可以发送任意数量的数据。
+   
+     ​		套接字只是计算机上已编号的端口。如果发送方和接收方计算机确定好端口，他们就可以通信了。
+   
+     ​		客户端与服务器端的通信关系图
+   
+     ​																	![](https://www.sxt.cn/360shop/Public/admin/UEditor/20170528/1495940019482522.png)
+   
+     **TCP/IP通信连接的简单过程：**
+   
+     ​		位于A计算机上的TCP/IP软件向B计算机发送包含端口号的消息，B计算机的TCP/IP软件接收该消息，并进行检查，查看是否有它知道的程序正在该端口上接收消息。如果有，他就将该消息交给这个程序。
+   
+     ​		要使程序有效地运行，就必须有一个客户端和一个服务器端。
+   
+     **通过Socket的编程顺序**
+   
+     1. 创建服务器ServerSocket，在创建时，定义ServerSocket的监听端口（在这个端口接收客户端发来的消息）。
+     2. ServerSocket调用accept()方法，使之处于阻塞状态。
+     3. 创建客户端Socket，并设置服务器的IP及端口。
+     4. 客户端发出连接请求，建立连接。
+     5. 分别取得服务器和客户端Socket的InputStream和OutputStream。
+     6. 利用Socket和ServerSocket进行数据传输。
+     7. 关闭流及Socket。
+   
+     **示例：TCP：单向通信Socket之服务器端**
+   
+     ```java
+     import java.io.BufferedWriter;
+     import java.io.IOException;
+     import java.io.OutputStreamWriter;
+     import java.net.ServerSocket;
+     import java.net.Socket;
+     
+     public class BasicSocketServer {
+     	public static void main(String[] args) {
+     		Socket socket = null;
+     		BufferedWriter bw = null;
+     		try {
+     			//建立服务器端套接字：指定监听的接口
+     			ServerSocket serverSocket = new ServerSocket(8888);
+     			System.out.println("服务端建立监听");
+     			//监听，等待客户端请求，并愿意建立连接
+     			socket = serverSocket.accept();
+     			//获取socket的输出流，并使用缓冲流进行包装
+     			bw = new BufferedWriter(new
+     															OutputStreamWriter(socket.getOutputStream()));
+     			//向客户端发送反馈信息
+     			bw.write("hhhh");
+     		}catch(IOException e) {
+     			e.printStackTrace();
+     		}finally {
+     			//关闭流及socket连接
+     			if(bw != null) {
+     				try {
+     					bw.close();
+     				}catch(IOException e) {
+     					e.printStackTrace();
+     				}
+     			}
+     			if(socket != null) {
+     				try {
+     					socket.close();
+     				}catch(IOException e) {
+     					e.printStackTrace();
+     				}
+     			}
+     		}
+     	}
+     }
+     ```
+   
+     **TCP:单向通信Socket之客户端**
+   
+     ```java
+     public class BasicSocketClient {
+     	public static void main(String[] args) {
+     		Socket socket = null;
+     		BufferedReader br = null;
+     		try {
+     			/*
+     			 * 创建Socket对象：指定要连接的服务器的IP和端口而不是自己机器的端口
+     			 * 发送端口是随机的。
+     			 */
+     			socket = new Socket(InetAddress.getLocalHost(),8888);
+     			//获取socket的输入流，并使用缓冲流进行包装
+     			br = new BufferedReader(new
+     														InputStreamReader(socket.getInputStream()));
+     			//接收服务器发送的消息
+     			System.out.println(br.readLine());
+     		}catch(Exception e) {
+     			e.printStackTrace();
+     		}finally {
+     			//关闭流及socket连接
+     			if(br != null) {
+     				try {
+     					br.close();
+     				}catch(IOException e) {
+     					e.printStackTrace();
+     				}
+     			}
+     			if(socket != null) {
+     				try {
+     					socket.close();
+     				}catch(IOException e) {
+     					e.printStackTrace();
+     				}
+     			}
+     		}
+     	}
+     }
+     ```
+   
+     **TCP:双向通信Socket之服务器端**
+   
+     ```java
+     public class Double_Server {
+     	public static void main(String[] args) {
+     		Socket socket = null;
+     		BufferedReader in = null;
+     		BufferedWriter out = null;
+     		BufferedReader br = null;
+     		try {
+     			//建立服务器端套接字：指定监听的接口
+     			ServerSocket server = new ServerSocket(8888);
+     			//监听客户端的连接
+     			socket = server.accept();
+     			//获取socket的输入输出流和发送消息
+     			in = new BufferedReader(new
+     															InputStreamReader(socket.getInputStream()));
+     			out = new BufferedWriter(new
+     															OutputStreamWriter(socket.getOutputStream()));
+     			br = new BufferedReader(new InputStreamReader(System.in));
+     			while(true) {
+     				//接收客户端发送的消息
+     				String str = in.readLine();
+     				System.out.println("客户端说：" + str);
+     				String str2 = "";
+     				//如果客户端发送的是“end”则终止连接
+     				if(str.equals("end")) {
+     					break;
+     				}
+     				//否则，发送反馈消息
+     				str2 = br.readLine(); //读到\n为止，因此一定要输入换行符
+     				out.write(str2 + "\n");
+     				out.flush();
+     			}
+     		}catch(IOException e) {
+     			e.printStackTrace();
+     		}finally {
+     			//关闭资源
+     			if(in != null) {
+     				try {
+     					in.close();
+     				}catch(IOException e) {
+     					e.printStackTrace();
+     				}
+     			}
+     			if(out != null) {
+     				try {
+     					out.close();
+     				}catch(IOException e) {
+     					e.printStackTrace();
+     				}
+     			}
+     			if(br != null) {
+     				try {
+     					br.close();
+     				}catch(IOException e) {
+     					e.printStackTrace();
+     				}
+     			}
+     			if(socket != null) {
+     				try {
+     					socket.close();
+     				}catch(IOException e) {
+     					e.printStackTrace();
+     				}
+     			}
+     		}
+     	}
+     }
+     ```
+   
+     **TCP:双向通信Socket之客户端**
+   
+     ```java
+     public class Double_Client {
+     	public static void main(String[] args) {
+     		Socket socket = null;
+     		BufferedReader in = null;
+     		BufferedWriter out = null;
+     		BufferedReader wt = null;
+     		try {
+     			//创建Socket对象，指定服务器端的IP与端口
+     			socket = new Socket(InetAddress.getLocalHost(),8888);
+     			//获取socket的输入输出流和发送消息
+     			in = new BufferedReader(new
+     															InputStreamReader(socket.getInputStream()));
+     			out = new BufferedWriter(new
+     															OutputStreamWriter(socket.getOutputStream()));
+     			wt = new BufferedReader(new InputStreamReader(System.in));
+     			while(true) {
+     				//接收客户端发送的消息
+     				String str = wt.readLine();
+     				out.write(str + "\n");
+     				out.flush();
+     				//如果输入的信息是“end”则终止连接
+     				if(str.equals("end")) {
+     					break;
+     				}
+     				//否则，接收并输出服务器端信息
+     				System.out.println("服务器端说：" + in.readLine());
+     			}
+     		}catch(UnknownHostException e) {
+     			e.printStackTrace();
+     		}catch(IOException e) {
+     			e.printStackTrace();
+     		}finally {
+     			//关闭资源
+     			if(in != null) {
+     				try {
+     					in.close();
+     				}catch(IOException e) {
+     					e.printStackTrace();
+     				}
+     			}
+     			if(out != null) {
+     				try {
+     					out.close();
+     				}catch(IOException e) {
+     					e.printStackTrace();
+     				}
+     			}
+     			if(wt != null) {
+     				try {
+     					wt.close();
+     				}catch(IOException e) {
+     					e.printStackTrace();
+     				}
+     			}
+     			if(socket != null) {
+     				try {
+     					socket.close();
+     				}catch(IOException e) {
+     					e.printStackTrace();
+     				}
+     			}
+     		}
+     	}
+     }
+     ```
+   
+     **菜鸟雷区**
+   
+     ​		运行时，要先启动服务器端，再启动客户端，才能得到正常的运行效果。
+   
+     ​		但是，上面这个程序，必须按照安排好的顺序，服务器和客户端一问一答！不够灵活！！可以使用多线程更加灵活的双向通讯！！
+   
+     ​		**服务器端**：一个线程专门发送消息，一个线程专门接收消息。
+   
+     ​		**客户端：**一个线程专门发送消息，一个线程专门接收消息。
+   
      
