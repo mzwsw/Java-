@@ -582,4 +582,377 @@
    
      ​		**客户端：**一个线程专门发送消息，一个线程专门接收消息。
    
+     **TCP:聊天室之服务器端**
+     
+     ```java
+     public class ChatServer {
+     	public static void main(String[] args) {
+     		ServerSocket server = null;
+     		Socket socket = null;
+     		BufferedReader in =null;
+     		try {
+     			server = new ServerSocket(8888);
+     			socket = server.accept();
+     			//创建向客户端发送消息的线程，并启动
+     			new ServerThread(socket).start();
+     			//main线程负责读取客户端发来的信息
+     			in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+     			while(true) {
+     				String str = in.readLine();
+     				System.out.println("客户端说：" + str);
+     			}
+     		}catch(IOException e) {
+     			e.printStackTrace();
+     		}finally {
+     			try {
+     				if(in != null) {
+     					in.close();
+     				}
+     			}catch(IOException e) {
+     				e.printStackTrace();
+     			}
+     			try {
+     				if(socket != null) {
+     					socket.close();
+     				}
+     			}catch(IOException e) {
+     				e.printStackTrace();
+     			}
+     		}
+     	}
+     	
+     	/**
+     	 * 专门向客户端发送消息的线程
+     	 */
+     	class ServerThread extends Thread{
+     		Socket ss;
+     		BufferedWriter out;
+     		BufferedReader br;
+     		
+     		public ServerThread(Socket ss) {
+     			this.ss = ss;
+     			try {
+     				out = new BufferedWriter(new OutputStreamWriter(ss.getOutputStream()));
+     				br = new BufferedReader(new InputStreamReader(System.in));
+     			}catch(IOException e) {
+     				e.printStackTrace();
+     			}
+     		}
+     		
+     		public void run() {
+     			try {
+     				while(true) {
+     					String str2 = br.readLine();
+     					out.write(str2 + "\n");
+     					out.flush();
+     				}
+     			}catch(IOException e) {
+     				e.printStackTrace();
+     			}finally {
+     				try {
+     	                if(out != null){
+     	                out.close();
+     	                }
+     	            } catch (IOException e) {
+     	                e.printStackTrace();
+     	            }
+     	            try {
+     	                if(br != null){
+     	                    br.close();
+     	                }
+     	            } catch (IOException e) {
+     	                e.printStackTrace();
+     	            }
+     			}
+     		}
+     	}
+     }
+     ```
+     
+     **TCP：聊天室之客户端**
+     
+     ```java
+     public class ChatClient {
+     	public static void main(String[] args) {
+     		Socket socket = null;
+     		BufferedReader in = null;
+     		try {
+     			socket = new Socket(InetAddress.getByName("127.0.1.1"),8888);
+     			//创建向服务器端发送信息的线程，并启动
+     			new ClientThread(socket).start();
+     			in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+     			//main线程负责接收服务器发来的信息
+     			while(true) {
+     				System.out.println("服务器说：" + in.readLine());
+     			}
+     		}catch(UnknownHostException e) {
+     			e.printStackTrace();
+     		}catch(IOException e) {
+     			e.printStackTrace();
+     		}finally {
+     			try {
+                     if (socket != null) {
+                         socket.close();
+                     }
+                 } catch (IOException e) {
+                     e.printStackTrace();
+                 }
+                 try {
+                     if (in != null) {
+                         in.close();
+                     }
+                 } catch (IOException e) {
+                     e.printStackTrace();
+                 }
+     		}
+     	}
+     	
+     	/**
+     	 * 用于向服务器发送消息
+     	 */
+     	class ClientThread extends Thread{
+     		Socket s;
+     		BufferedWriter out;
+     		BufferedReader wt;
+     		
+     		public ClientThread(Socket s) {
+     			this.s = s;
+     			try {
+     				out = new BufferedWriter(new OutputStreamWriter(s.getOutputStream()));
+     				wt = new BufferedReader(new InputStreamReader(System.in));
+     			}catch(IOException e) {
+     				e.printStackTrace();
+     			}
+     		}
+     		
+     		public void run() {
+     			try {
+     				while(true) {
+     					String str = wt.readLine();
+     					out.write(str + "\n");
+     					out.flush();
+     				}
+     			}catch(IOException e) {
+     				e.printStackTrace();
+     			}finally {
+     				try {
+     	                if (wt != null) {
+     	                    wt.close();
+     	                }
+     	            } catch (IOException e) {
+     	                e.printStackTrace();
+     	            }
+     	            try {
+     	                if (out != null) {
+     	                    out.close();
+     	                }
+     	            } catch (IOException e) {
+     	                e.printStackTrace();
+     	            }
+     			}
+     		}
+     		
+     	}
+     }
+     ```
+     
+   * **UDP通讯的实现**
+   
+     * **DatagramSocket：用于发送或接受数据报包**
+   
+       ​		当服务器要向客户端发送数据时，需要在服务器端产生一个DatagramSocket对象，在客户端产生一个DatagramSocket对象。服务器端的DatagramSocket将DatagramPacket发送到网络上，然后被客户端的DatagramSocket接收。
+   
+       ​		DatagramSocket有两种常用的构造函数。一种是无需任何参数的，常用于客户端；另一种需要指定端口，常用于服务器端。如下所示：
+   
+       ​		DatagramSocket()：构造数据报套接字并将其绑定到本地主机上任何可用的端口。
+   
+       ​		DatagramSocket(int port)：创建数据报套接字并将其绑定到本地主机上的指定端口。
+   
+       **常用方法：**
+   
+       1. send(DatagramPacket p)：从此套接字发送数据报包。
+       2. receive(DatagramPacket p)：从此套接字接收数据报包。
+       3. close()：关闭此数据报套接字。
+   
+     * **DatagramPacket：数据容器（封包）的作用**
+   
+       ​		此类表示数据报包。数据报包用来实现封包的功能。
+   
+       **常用方法**
+   
+       1. DatagramPacket(byte[] buf, int length)：构造数据报包，用来接收长度为length的数据包。
+       2. DatagramPacket(byte[] buf, int length, InetAddress address, int port)：构造数据报包，用来将长度为length的包发送到指定主机上的指定端口号。
+       3. getAddress()：获取发送或接收方计算机的IP地址，此数据报将要发往该机器或者是从该机器接收到的。
+       4. getData()：获取发送或接收的数据。
+       5. setData(byte[] buf)：设置发送的数据。
+   
+     **UDP通信编程基本步骤：**
+   
+     1. 创建客户端的DatagramSocket，创建时，定义客户端的监听端口。
+     2. 创建服务器端的DatagramSocket，创建时，定义服务器端的监听端口。
+     3. 在服务器端定义DatagramPacket对象，封装待发送的数据包。
+     4. 客户端将数据报包发送出去。
+     5. 服务器端接收数据报包。
+   
+     **示例：UDP：单向通信之客户端**
+   
+     ```java
+     public class Client{
+         public static void main(Stirng[] args) throws Exception{
+             byte[] b = "zsk".getBytes();
+             //必须告诉数据报包要发到哪台计算机的哪个端口，发送数据以及数据的长度
+             DatagramPacket dp = new DatagramPacket(b,b.length, new InetSocketAddress("localhost", 8999));
+             //创建数据报套接字：指定发送信息的端口
+             DatagramSocket ds = new DatagramSocket(9000);
+             //发送数据报包
+             ds.send(dp);
+             //关闭资源
+             ds.close();
+         }
+     }
+     ```
+   
+     **示例：UDP：单向通信之服务器端**
+   
+     ```java
+     public class Server{
+         public static void main(String[] args) throws Exception{
+             //创建数据报套接字：指定接收信息的端口
+             DatagramSocket ds = new DatagramSocket(8999);
+             byte[] b = new byte[1024];
+             //创建数据报包，指定要接收的数据的缓存位置和长度
+             DatagramPacket dp = new DatagramPacket(b, b.length);
+             //接收客户端发送的数据报
+             ds.receive(dp); //阻塞式方法
+             //dp.getLength() 返回实际收到的数据的字节数
+             String string = new String(dp.getData(), 0, dp.getLength());
+             System.out.println(string);
+             //关闭资源
+             ds.close();
+         }
+     }
+     ```
+   
+     ​		通过字节数组流ByteArrayInputStream、ByteArrayOutputStream与数据流DataInputStream、DataOutputStream联合使用可以传递基本数据类型。
+   
+     **示例：UDP：基本数据类型的传递之客户端**
+   
+     ```java
+     public class Client{
+         public static void main(String[] args) throws Exception{
+             long n = 2000L;
+             ByteArrayOutputStream bos = new ByteArrayOutputStream();
+             DataOutputStream dos = new DataOutputStream(bos);
+             dos.writeLong(n);
+             //获取字节数组流中的字节数组（我们要发送的数据）
+             byte[] b = bos.toByteArray();
+             //必须告诉数据报包要发到哪台计算机的哪个端口，发送的数据以及数据的长度
+             DatagramPacket dp = new DatagramPacket(b, b.length, new InetSocketAddress("localhost", 8999));
+             //创建数据报套接字：指定发送信息的端口
+             DatagramSocket ds = new DatagramSocket(9000);
+             //发送数据报包
+             ds.send(dp);
+             //关闭资源
+             dos.close();
+             bos.close();
+             ds.close();
+         }
+     }
+     ```
+   
+     **示例：UDP：基本数据类型的传递之服务器端**
+   
+     ```java
+     public class Server{
+         public static void main(String[] args) throws Exception {
+             //创建数据报套接字：指定接收信息的端口
+             DatagramSocket ds = new DatagramSocket(8999);
+             byte[] b = new byte[1024];
+             //创建数据报包，指定要接收的数据的缓存位置和长度
+             DatagramPacket dp = new DatagramPacket(b, b.length);
+             //接收客户端发送的数据报
+             ds.receive(dp);//阻塞式方法
+             //dp.getData();获取客户端发送的数据，返回值是一个字节数组
+             ByteArrayInputStream bis = new ByteArrayInputStream(dp.getData());
+             DataInputStream dis = new DataInputStream(bis);
+             System.out.println(dis.readLong());
+             //关闭资源
+             dis.close();
+             bis.close();
+             ds.close();
+         }
+     }
+     ```
+   
+     ​		通过字节数组流ByteArrayInputStream、ByteArrayOutputStream与数据流ObjectInputStream、ObjectOutputStream联合使用可以传递对象。
+   
+     **示例：UDP：对象的传递之Person类**
+   
+     ```java
+     puglic class Person implements Serializable{
+         private static final long serialVersionUID = 1L;
+         int age;
+         String name;
+         public Person(int age, String name){
+             super();
+             this.age = age;
+             this.name = name;
+         }
+         @Override
+         public String toString(){
+             return "Person [age =" + age + ",name=" + name "]";
+         }
+     }
+     ```
+   
+     **示例：UDP：对象的传递之客户端**
+   
+     ```java
+     public class Client{
+         public static void main(String[] args) throws Exception{
+             //创建要发送的对象
+             Person person = new Person(23,"zsk");
+             ByteArrayOutputStream bos = new ByteArrayOutputStream();
+             ObjectOutputStream oos = new ObjectOutputStream(bos);
+             oos.writeObject(person);
+             //获取字节数组流中的字节数组（我们要发送的数据）
+             byte[] b = bos.toByteArray();
+             //必须告诉数据报包要发到哪台计算机的哪个端口，发送的数据以及数据的长度
+             DatagramPacket dp = new DatagramPacket(b, b.length, new InetSocketAddress("localhost", 8999));
+             //创建数据报套接字：指定发送信息的端口
+             DatagramSocket ds = new DatagramSocket(9000);
+             //发送数据报包
+             ds.send(dp);
+             //关闭资源
+             oos.close();
+             bos.close();
+             ds.close();
+         }
+     }
+     ```
+   
+     **示例：UDP：对象的传递之服务器端**
+   
+     ```java
+     public class Server{
+         public static void main(String[] args) throws Exception {
+             //创建数据报套接字：指定接收信息的端口
+             DatagramSocket ds = new DatagramSocket(8999);
+             byte[] b = new byte[1024];
+             //创建数据报包，指定要接收的数据的缓存位置和长度
+             DatagramPacket dp = new DatagramPacket(b, b.length);
+             //接收客户端发送的数据报
+             ds.receive(dp);//阻塞式方法
+             //dp.getData();获取客户端发送的数据，返回值是一个字节数组
+             ByteArrayInputStream bis = new ByteArrayInputStream(dp.getData());
+             ObjectInputStream ois = new ObjectInputStream(bis);
+             System.out.println(ois.readObject());
+             //关闭资源
+             ois.close();
+             bis.close();
+             ds.close();
+         }
+     }
+     ```
+   
      
