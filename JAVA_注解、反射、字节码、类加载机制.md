@@ -110,3 +110,98 @@
        CLASS		在class文件中有效（即class保留）
 
        RUNTIME		在运行时有效（即运行时保留），可以被反射机制读取
+   
+5. **注解作业**
+
+   * 什么是ORM（Object Relationship Mapping）
+     * 类和表结构对应
+     * 属性和字段对应
+     * 对象和记录对应
+   * 使用注解完成类和表结构的映射广西
+     * 学习了反射机制后，我们可以定义注解处理流程读取这些注解，实现更复杂的功能。
+
+   ```java
+   //类ZskStudent
+   @ZskTable("tb_student")
+   public class ZskStudent {
+   	
+   	@ZskField(columnName = "id", type = "int", length = 10)
+   	private int id;
+   	@ZskField(columnName = "sname", type = "varchar", length = 10)
+   	private String studentName;
+   	@ZskField(columnName = "age", type = "int", length = 3)
+   	private int age;
+   	
+   	public int getId() {
+   		return id;
+   	}
+   	public void setId(int id) {
+   		this.id = id;
+   	}
+   	public String getStudentName() {
+   		return studentName;
+   	}
+   	public void setStudentName(String studentName) {
+   		this.studentName = studentName;
+   	}
+   	public int getAge() {
+   		return age;
+   	}
+   	public void setAge(int age) {
+   		this.age = age;
+   	}	
+   }
+   
+   //类注解
+   @Target(value= {ElementType.TYPE})
+   @Retention(RetentionPolicy.RUNTIME)
+   public @interface ZskTable {
+   	String value();
+   }
+   
+   //属性注解
+   @Target(value= {ElementType.FIELD})
+   @Retention(RetentionPolicy.RUNTIME)
+   public @interface ZskField {
+   	String columnName();
+   	String type();
+   	int length();
+   }
+   
+   //解析程序
+   /**
+    * 使用反射读取注解的信息，模拟处理注解信息的流程
+    * @author zsk
+    *
+    */
+   public class Demo {
+   	public static void main(String[] args) {
+   		try {
+   			Class clazz = Class.forName("cn.zsk.test.annotation.ZskStudent");
+   			
+   			//获得类的所有有效注解
+   			Annotation[] annotations = clazz.getAnnotations();
+   			for(Annotation a : annotations) {
+   				System.out.println(a);
+   			}
+   			
+   			//获得类的指定注解
+   			ZskTable zt = (ZskTable) clazz.getAnnotation(ZskTable.class);
+   			System.out.println(zt.value());
+   			
+   			//获得类的属性的注解
+   			Field f =  clazz.getDeclaredField("studentName");
+   			ZskField zskField =  f.getAnnotation(ZskField.class);
+   			System.out.println(zskField.columnName() + "----" + zskField.length());
+   			
+   			//根据获得的表明、字段的信息，拼出DDl语句，然后使用JDBC执行这个SQL，在数据库中生成相关的表
+   		} catch (Exception e) {
+   			e.printStackTrace();
+   		}
+   	}
+   }
+   ```
+
+## 二、反射
+
+1. 
