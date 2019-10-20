@@ -210,7 +210,7 @@
 
    ​		程序在运行状态中，可以动态加载一个只有名称的类，对于任意一个已加载的类，都能够知道这个类的所有属性和方法；对于任意一个对象，都能够调用它的任意一个方法和属性；
 
-   		> Class c = Class.forName("com.bjsxt.test.User");
+   	Class c = Class.forName("com.bjsxt.test.User");
 
    ​		加载完之后，在堆内存中，就产生了一个Class类型的对象（一个类只有一个Class对象），这个对象就包含了完整的类的结构信息。我们可以通过这个对象看到类的结构。这个对象就像一面镜子，透过这个镜子看到类的结构，所以，我们称之为：反射。
 
@@ -375,6 +375,88 @@
      Field f = clazz.getDeclaredField("studentName");
      ZskField zskField = f.getAnnotation(ZSkField.class);
      System.out.println(zskField.columnName() + "---" + zskField.type() + "---" + zskField.length());
+     ```
+
+
+## 三、动态编译
+
+1. **动态编译**
+
+   * 动态编译的应用场景
+
+     * 可以做一个浏览器端编写java代码，上传服务器编译和运行的在线评测系统。
+     * 服务器动态加载某些类文件进行编译
+
+   * 动态编译的两种做法
+
+     * 通过Runtime调用javac，启动新的进程去操作
+
+       Runtime run = Runtime.getRuntime();
+
+       Process process = run.exec("javac -cp d:/myjava/ HelloWorld.java");
+
+     * **通过JavaCompiler动态编译**
+
+       ```java
+       public static int compileFile(String sourceFile){
+           //动态编译
+           JavaCompiler compiler ToolProvider.getSystemJavaCompiler();
+           int result = compiler.run(null, null, null, sourceFile);
+           System.out.println(result == 0 ? "编译成功" : "编译失败");
+           return result;
+       }
+       ```
+
+       1. 第一个参数：为Java编译器提供参数
+       2. 第二个参数：得到Java编译器的输出信息
+       3. 第三个参数：接收编译器的错误信息
+       4. 第四个参数：可变参数（是一个String数组）能传入一个或多个Java源文件
+       5. 返回值：0便是编译成功，非0表示编译失败
+
+2. **动态运行编译好的类**
+
+   * 通过Runtime.getRuntime()运行启动新的进程运行
+
+     ```java
+     Runtime run = Runtime.getRuntime();
+     Process process = run.exec("java -cp d:/myjava HelloWorld");
+     //Process process = run.exec("java -cp" + dir + "" + classFile);
+     ```
+
+   * 通过反射运行编译好的类
+
+     ```java
+     //通过反射运行程序
+     public static void runJavaClassByReflect(String dir, String classFile) throws Exception {
+         try{
+             URL[] urls = new URL[]{new URL("file:/" + dir)};
+             URLClassLoader loader = new URLClassLoader(urls);
+             Class c = loader.loadClass(classFile);
+             //调用加载类的main方法
+             c.getMethod("main", String[].class).invoke(null, (Object)new String[]{});
+             
+         }catch(Exception e){
+             e.printStackTrace();
+         }
+     }
+     ```
+
+## 三、脚本引擎执行javascript代码
+
+1. **脚本引擎**
+
+   * 脚本引擎介绍
+
+     * 使得Java应用程序可以通过一套固定的接口与各种脚本引擎交互，从而达到在Java平台上调用各种脚本语言的目的。
+     * Java脚本API是联通Java平台和脚本语言的桥梁
+     * 可以把一些复杂异变的业务逻辑交给脚本语言处理，这又大大提高了开发效率。
+
+   * 获得脚本引擎对象
+
+     ```java
+     //获得脚本引擎
+     ScriptEngineManager sem = new ScriptEngineManager();
+     ScriptEngine engine = sem.getEngineByName("javascript");
      ```
 
      
