@@ -459,4 +459,157 @@
      ScriptEngine engine = sem.getEngineByName("javascript");
      ```
 
-     
+   * Java脚本API为开发者提供了如下功能：
+   
+     * 获取脚本程序输入，通过脚本引擎运行脚本并返回运行结果，**这是最核心的接口**。
+   
+       ​		注意是：接口。Java可以使用各种不同的实现，从而通用的调用js、groovy、python等脚本。
+   
+       ​		Js使用了：Rhino
+   
+       ​		Rhino是一种使用Java语言编写的JavaScript的开源实现。
+   
+     * 通过**脚本引擎**的运行上下文在脚本和Java平台间交换数据
+   
+     * 通过Java应用程序调用脚本函数。
+   
+2. **Rhino介绍**
+
+   Rhino是一种使用Java语言编写的JavaScript的开源实现，原先由Mozilla开发，现在被集成进入JDK6.0。
+
+```java
+/**
+ * 测试脚本引擎执行javascript代码
+ * @author zsk
+ *
+ */
+public class Demo01 {
+	public static void main(String[] args) throws Exception {
+		
+		//获得脚本引擎对象
+		ScriptEngineManager sem = new ScriptEngineManager();
+		ScriptEngine engine = sem.getEngineByName("javascript");
+		
+		//定义变量，存储到引擎上下文中
+		engine.put("msg", "zsk is a good man");
+		String str = "var user = {name: 'zsk',age:18,schools:['清华大学','南京邮电大学']};"; 
+		str += "print(user.name);";
+		
+		//执行脚本
+		engine.eval(str);
+		engine.eval("msg = '南邮 is a good school';");
+		System.out.println(engine.get("msg"));  //既可以被脚本语言获取，也可以被java获取
+		
+		System.out.println("-------------------------------------");
+		
+		
+		//定义函数
+		engine.eval("function add(a,b){var sum = a + b; return sum;}");
+		//取得调用接口
+		Invocable jsInvoke = (Invocable) engine;
+		//执行脚本中定义的方法
+		Object result1 = jsInvoke.invokeFunction("add", new Object[] {13, 20});
+		System.out.println(result1);
+		
+		//导入其他java包，使用其他包中的java类
+		String jsCode = "importPackage(java.util); var list = Arrays.asList([\"南京邮电大学\",\"清华大学\",\"北京大学\"])";
+		engine.eval(jsCode);
+		
+		List<String> list2 = (List<String>)engine.get("list");
+		for (String temp : list2) {
+			System.out.println(temp);
+		}
+		
+		//执行一个js文件（将a.js置于项目的src下即可
+		URL url = Demo01.class.getClassLoader().getResource("a.js");
+		FileReader fr = new FileReader(url.getPath());
+		engine.eval(fr);
+		fr.close();	
+	}
+}
+```
+
+## 四、JAVA字节码操作
+
+1. **字节码操作**
+
+   * JAVA动态性的两种常见实现方式：
+     * 字节码操作
+     * 反射
+   * 运行时操作字节码可以让我们实现如下功能：
+     * 动态生成新的类
+     * 动态改变某个类的结构（添加/删除/修改    新的属性/方法）
+   * 优势：
+     * 比反射开销小，性能高
+     * JAVAssist性能高于反射，低于ASM
+
+2. **常见的字节码操作类库**
+
+   * BCEL
+
+     Byte Code Engineering Library(BCEL)
+
+     BCEL在实际的JVM指令层次上进行操作（BCEL拥有丰富的JVM指令级支持）而Javassist所强调的是源代码级别的工作。
+
+   * ASM
+
+     是一个轻量级java字节码操作框架，直接涉及到JVM底层的操作和指令
+
+   * CGLIB
+
+     是一个强大的，高性能，高质量的Code生成类库，基于ASM实现。
+
+   * Javassist
+
+     是一个开源的分析、编辑和创建Java字节码的类库。性能较ASM差，但是使用简单。
+
+3. **JAVAssist库的API详解**
+
+   * javassist的最外层的API和JAVA的反射包中的API颇为类似
+   * 它主要由CtClass，CtMethod，以及CrFiled几个类组成。用于执行和JDK反射API中java.lang.Class,java.lang.reflect.Method,java.lang.reflect.Field相同的操作。
+
+4. **JAVAssist库的简单使用**
+
+   * 创建一个全新的类
+   * 使用XJAD反编译工具，将生成的class文件反编译成JAVA文件
+
+   ```java
+   /**
+    * 测试使用javassist生成一个新的类
+    * @author zsk
+    *
+    */
+   public class Demo01 {
+   	public static void main(String[] args) throws Exception {
+   		
+   		ClassPool pool = ClassPool.getDefault();
+   		CtClass cc = pool.makeClass("cn.zsk.bean.Emp");
+   		
+   		//创建属性
+   		CtField f1 = CtField.make("private int empno;", cc);
+   		CtField f2 = CtField.make("private String ename;", cc);
+   		cc.addField(f1);
+   		cc.addField(f2);
+   		
+   		//创建方法
+   		CtMethod m1 = CtMethod.make("public int getEmpno(){return empno;}", cc);
+   		CtMethod m2 = CtMethod.make("public void setEmpno(int empno){this.empno = empno;}", cc);
+   		cc.addMethod(m1);
+   		cc.addMethod(m2);
+   		
+   		//添加构造器
+   		CtConstructor constructor = new CtConstructor(new CtClass[] {CtClass.intType, pool.get("java.lang.String")}, cc);
+   		constructor.setBody("{this.empno = empno; this.ename = ename;}");
+   		cc.addConstructor(constructor);
+   		cc.debugWriteFile("d:/myjava");
+   		System.out.println("生成类成功！");
+   	}
+   }
+   ```
+
+5. **JAVAssist库的API详解**
+
+   * 方法操作
+     * 修改已有方法的方法体（插入代码到已有方法体）
+     * 新增方法
+     * 删除方法
