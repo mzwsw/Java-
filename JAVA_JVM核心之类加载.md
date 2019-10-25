@@ -369,8 +369,214 @@
      			}
      		}
      	}
-     	
      }
      ```
-
      
+
+7. **加密解密类加载器**
+
+   ```java
+   /**
+    * 加密工具类
+    * @author zsk
+    *
+    */
+   public class EncrptUtil {
+   	
+   	public static void main(String[] args) {
+   		encrpt("f:/myjava/HelloWorld.class", "f:/myjava/temp/HelloWorld.class");
+   	}
+   	
+   	
+   	
+   	public static void encrpt(String src, String dest) {
+   		
+   		FileInputStream fis = null;
+   		FileOutputStream fos = null;
+   		
+   		try {
+   			fis = new FileInputStream(src);
+   			fos = new FileOutputStream(dest);
+   			
+   			int temp = -1;
+   			while((temp = fis.read()) != -1) {
+   				fos.write(temp ^ 0xff);
+   			}
+   			
+   		} catch (Exception e) {
+   			e.printStackTrace();
+   		}finally {
+   			try {
+   				if(fis != null) {
+   					fis.close();
+   				}
+   			}catch(Exception e) {
+   				e.printStackTrace();
+   			}
+   			try {
+   				if(fos != null) {
+   					fos.close();
+   				}
+   			}catch(Exception e) {
+   				e.printStackTrace();
+   			}
+   		}
+   	}
+   }
+   
+   
+   
+   
+   /**
+    * 加载文件系统中解密后的class字节码的类加载器
+    * @author zsk
+    *
+    */
+   public class DecrptClassLoader extends ClassLoader {
+   	
+   	private String rootDir;
+   	
+   	public DecrptClassLoader(String rootDir) {
+   		this.rootDir = rootDir;
+   	}
+   	
+   	@Override
+   	protected Class<?> findClass(String name) throws ClassNotFoundException{
+   		
+   		Class<?> c = findLoadedClass(name);
+   		
+   		//应该先查询有没有加载过这个类，如果已经加载，则直接返回加载好的类。如果没有，则重新加载
+   		if(c != null) {
+   			return c;
+   		}else {
+   			ClassLoader parent = this.getParent();
+   			
+   			try {
+   				c = parent.loadClass(name);  //委派给父类加载
+   			}catch(Exception e) {
+   //				e.printStackTrace();
+   			}
+   			
+   			
+   			if(c != null) {
+   				return c;
+   			}else {
+   				byte[] classData = getClassData(name);
+   				if(classData == null) {
+   					throw new ClassNotFoundException();
+   				}else {
+   					c = defineClass(name, classData, 0, classData.length);
+   				}
+   			}
+   		}
+   		return c;
+   	}
+   	
+   	private byte[] getClassData(String classname) {
+   		String path = rootDir + "/" + classname +  ".class";
+   		
+   		//IOUtils,可以使用它将流中的数据转成字节数组
+   		InputStream is = null;
+   		ByteArrayOutputStream baos = new ByteArrayOutputStream();
+   		
+   		try {
+   			is = new FileInputStream(path);
+   			
+   			int temp = -1;
+   			while((temp = is.read()) != -1) {
+   				baos.write(temp ^ 0xff);
+   				
+   			}
+   			
+   			return baos.toByteArray();
+   			
+   		}catch(Exception e) {
+   			e.printStackTrace();
+   			return null;
+   		}finally {
+   			if(is != null) {
+   				try {
+   					is.close();
+   				} catch (IOException e) {
+   					e.printStackTrace();
+   				}
+   			}
+   			if(baos != null) {
+   				try {
+   					baos.close();
+   				} catch (IOException e) {
+   					e.printStackTrace();
+   				}
+   			}
+   		}
+   	}
+   }
+   
+   
+   
+   /**
+    * 测试简单加密解密（取反）操作
+    * @author zsk
+    *
+    */
+   public class Demo02 {
+   	public static void main(String[] args) throws Exception {
+   		//测试取反操作
+   //		int a = 3;
+   //		System.out.println(Integer.toBinaryString(a ^ 0xff));
+   		
+   		//加密后的class文件，正常的类加载器无法加载
+   //		FileSystemClassLoader loader = new FileSystemClassLoader("f:/myjava/temp");
+   //		Class<?> c = loader.loadClass("HelloWorld");
+   //		System.out.println(c);
+   		
+   		DecrptClassLoader loader = new DecrptClassLoader("f:/myjava/temp");
+   		Class<?> c = loader.loadClass("HelloWorld");
+   		System.out.println(c);
+   	}
+   }
+   ```
+
+8. **线程上下文类加载器**
+
+   * **双亲委托机制以及默认类加载器的问题**
+
+     * 一般情况下，保证同一个类中所关联的其他类都是由当前类的类加载器所加载的。
+
+       比如，ClassA本身在Ext下找到，那么它里面new处理的一些类也就只能用Ext去查找了（不会第一个级别），所以有些明明App可以找到，却找不到了。
+
+     * JDBC API，它由实现的driven部分（mysql/sql server），我们的JDBC API都是由Boot或者Ext来载入的，但是JDBC driver却是由Ext或者App来载入，那么就有可能找不到driver了。在Java领域中，其实只要分成这种API+SPI(Service Provide Interface,特定厂商提供)的，都会遇到此问题。
+
+     * 常见的SPI有JDBC、JCE、JNDI、JAXP和JBI等。这些SPI的接口由Java核心库来提供。SPI的接口是Java核心库的一部分，是由引导类加载器来加载的；SPI实现地Java类一般是由系统类加载器加载的。引导类加载器是无法找到SPI实现了的，因为它只加载Java的核心库。
+     
+   * **通常当需要动态加载资源的时候，至少有三个ClassLoader可以选择**
+   
+     1. **系统类加载器或者叫做应用类加载器（system classloader or application classloader)**
+     2. **当前类加载器**
+     3. **当前线程类加载器**
+   
+   * 当前线程类加载器是为了抛弃双亲委派加载链模式
+   
+     ​		每个线程都有一个关联的上下文类加载器。如果你没有使用new Thread()方式生成新的线程，新线程将继承其父线程的上下文类加载器。如果程序对线程上下文类加载器没有任何改动的话，程序中所有的线程将都使用系统类加载器作为上下文类加载器。
+   
+   * Thread.currentThread().getContextClassLoader()
+   
+9. **TOMCAT服务器的类加载机制**
+
+   * 一切都是为了安全！
+     * TOMCAT不能使用系统默认的类加载器。
+       * 如果TOMCAT跑你的WEB项目使用系统的类加载器那是相当危险的，你可以直接肆无忌惮的操作系统的各个目录了。
+       * 对于运行在Java EE容器中的Web应用来说，类加载器的实现方法与一般的Java应用有所不同。
+       * 每个Web应用都有一个对应的类加载器实例。该类加载器也使用代理模式（不同于前面说的双亲委托机制），所不同的是它首先尝试去加载某个类，如果找不到再代理给父类加载器。这与一般类加载器的顺序是相反的。但也是为了安全，这样核心库就不在查询范围之内了。
+   * 为了安全TOMCAT需要实现自己的类加载器。
+     * 我可以限制你只能把类写在指定的地方，否则我不给你加载！
+
+10. **OSGI原理介绍**
+
+    * OSGI是Java上的动态模块系统。它为开发人员提供了面向服务和基于组件的运行环境，并提供标准的方式用来管理软件的生命周期。
+
+    * OSGi已经被实现和部署在很多产品上。Eclipse就是基于OSGi技术来构建的。
+
+    * **原理**：
+
+      ​		OSGi中的每个模块（bundle）都包含Java包和类。模块可以声明它所依赖的需要导入（import）的其他模块的Java包和类，也可以声明导出自己的包和类，供其他模块使用。也就是说需要能够隐藏和共享一个模块中的某些Java包和类。**这是通过OSGi特有的类加载器机制来实现的。OSGi中的每个模块都有对应的一个类加载器。它负责加载模块自己包含的Java包和类**。
