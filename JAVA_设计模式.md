@@ -138,7 +138,14 @@
    * 反序列化可以破解上面几种（不包含枚举式）实现方式！
 
      * 可以通过定义readResolve()防止或者不同对象。
+       
        * 反序列化时，如果对象所在类定义了readResolve()，（实际是一种回调），定义返回哪个对象。
+       
+         ```java
+         private Object readResolve() throws ObjectStreamException {
+             return s;
+         }
+         ```
 
 10. 使用枚举实现单例模式
 
@@ -162,3 +169,142 @@
       * 枚举本身就是单例模式。由JVM从根本上提供保障！避免通过反射和反序列化的漏洞！
     * 缺点：
       * 无延时加载
+    
+11. **如何选用？**
+
+    * 单例对象	占用资源少	不需要 延时加载
+      * 枚举式	好于	饿汉式
+    * 单例对象    占用资源大    需要 延时加载
+      * 静态内部类式	好于	懒汉式
+
+## 二、工厂模式
+
+1. 工厂模式：
+
+   * 实现了创建者和调用者的分离。
+   * 详细分类：简单工厂模式；工厂方法模式；抽象工厂模式
+
+2. 面向对象设计的基本原则：
+
+   * OCP（开闭原则，Open-Closed Principle）：一个软件的实体应对对扩展开放，对修改关闭。
+   * DIP（依赖倒转原则，Dependence Inversion Principle）：要针对接口编程，不要针对实现编程。
+   * LoD（迪米特法则，Law of Demeter）：只与你直接的朋友通信，而避免和陌生人通信。
+
+3. 核心本质：
+
+   * 实例化对象，用工厂方法代替new操作。
+   * 将选择实现类、创建对象统一管理和控制。从而将调用者跟我们的实现类解耦。
+
+4. 工厂模式分类：
+
+   * 简单工厂模式：用来生成同一等级结构中的任意产品。（对于增加新的产品，需要修改已有代码）
+   * 工厂方法模式：用来生成同一等级结构中的固定产品（支持增加任意产品）
+   * 抽象工厂模式：用来生成不同产品族的全部产品。（对于增加新的产品，无能为力；可以增加产品族）
+
+5. 举例：不使用简单工厂模式的情况
+
+   ```java
+   public class Client01{  //调用者
+       public static void main(String[] args){
+           Car c1 = new Audi();
+           Car c2 = new Byd();
+           
+           c1.run();
+           c2.run();
+       }
+   }
+   ```
+
+6. **简单工厂模式**
+
+   * 要点：
+
+     * 简单工厂模式也叫静态工厂模式，就是工厂类一般使用静态方法，通过接收的参数的不同来返回不同的对象实例。
+     * 对于增加新产品无能为力！不能修改代码的话，是无法扩展的。
+
+     ```java
+     public class CarFactory{
+         public static Car createCar(String type){
+             Car c = null;
+             if("奥迪".equals(type)){
+                 c = new Audi();
+             }else if("比亚迪".equals(type)){
+                 c = new Byd();
+             }
+             return c;
+         }
+     }
+     
+     
+     public class CarFactory{
+         public static Car creatAudi(){
+             return new Audi();
+         }
+         public static Car creatByd(){
+             return new Byd();
+         }
+     }
+     ```
+
+7. **工厂方法模式**
+
+   * 要点：
+
+     * 为了避免简单工厂模式的缺点，不完全满足OCP。
+     * 工厂方法模式和简单工厂模式最大的不同在于，简单工厂模式只有一个（对于一个项目或者一个独立模块而言）工厂类，而工厂方法模式有一组实现了相同接口的工厂类。
+
+     ```java
+     //工厂接口
+     public interface CarFactory{
+         Car createCar();
+     }
+     
+     //通过接口实现具体工厂类
+     public class AudiFactory implements CarFactory{
+         @Override
+         public Car createCar(){
+             return new Audi();
+         }
+     }
+     public class BydFactory implements CarFactory{
+         @Override
+         public Car createCar(){
+             return new Byd();
+         }
+     }
+     //可以随意扩展添加具体工厂类
+     public class BenzFactory implements CarFactory{
+         ......
+     }
+     
+     //调用
+     public class Client{
+         public static void main(String[] args){
+             Car c1 = new AudiFactory().createCar();
+             c1.run();
+             
+             Car c2 = new BydFactory().createCar();
+             c2.run();
+         }
+     }
+     ```
+
+8. 简单工厂模式和工厂方法模式PK：
+
+   * 结构复杂度
+
+     简单工厂模式占优。简单工厂只有一个工厂类。工厂方法模式的工厂类随着产品类个数增加而增加。
+
+   * 代码复杂度
+
+     代码复杂度和结构复杂度是一对矛盾。
+
+   * 客户端编程难度
+
+     简单工厂占优
+
+   * **根据设计理念建议：工厂方法模式。但实际上，一般都用简单工厂模式。**
+
+9. **抽象工厂模式**
+
+   
