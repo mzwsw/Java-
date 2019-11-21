@@ -389,3 +389,85 @@
   3. 删除非空约束
 
      ALTER TABLE stu MODIFY NAME VARCHAR(20);
+  
+* **唯一约束:unique**
+
+  1. 创建表时，添加唯一约束
+
+     CREATE TABLE stu(
+
+     ​		id INT,
+
+     ​		phone_number VARCHAR(20)  UNIQUE   --添加了唯一约束
+
+     );
+
+     * 注意：mysql中，唯一约束限定的列的值可以有多个null
+
+  2. 删除唯一约束
+
+     ALTER TABLE stu DROP INDEX phone_number;
+
+  3. 在创建表后，添加唯一约束
+
+     ALTER TABLE stu MODIFY phone_number VARCHAR(20) UNIQUE;
+
+* **主键约束：primary key**
+
+  1. 注意：
+
+     * 含义：非空且唯一
+     * 一张表只能有一个字段为主键
+     * 主键就是表中记录的唯一标识
+
+  2. 在创建表时，添加主键约束
+
+     CREATE TABLE stu(
+
+     ​		id INT primary key,  -- 给id添加主键约束
+
+     ​		name VARCHAR(20)
+
+     );
+
+  3. 删除主键
+
+     ALTER TABLE stu DROP PRIMARY KEY;
+
+  4. 创建表后，添加主键
+
+     ALTER TABLE stu MODIFY id INT PRIMARY KEY;
+
+  5. 自动增长：
+
+     * 概念：如果某一列是数值类型的，使用auto_increment 可以来完成值的自动增长
+
+     * 在创建表时，添加主键约束，并完成主键自动增长
+
+       CREATE TABLE stu (
+
+       ​		id INT PRIMARY KEY AUTO_INCREMENT,
+
+       ​		NAME VARCHAR(20)
+
+       );
+
+     * 删除自动增长
+
+       ALTER TABLE stu MODIFY id INT;
+
+     * 添加自动增长
+
+       ALTER TABLE stu MODIFY id INT AUTO_INCREMENT;
+
+* **外键约束：foreign key**
+
+  1. 在创建表时，可以添加外键
+
+     * 语法：
+
+       create table 表名(
+
+       ​		
+
+       )
