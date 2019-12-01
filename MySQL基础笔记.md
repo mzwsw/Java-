@@ -460,7 +460,7 @@
 
        ALTER TABLE stu MODIFY id INT AUTO_INCREMENT;
 
-* **外键约束：foreign key**
+* **外键约束：foreign key**：让表与表产生关系，从而保证数据的正确性
 
   1. 在创建表时，可以添加外键
 
@@ -468,6 +468,31 @@
 
        create table 表名(
 
-       ​		
+       ​		......
 
-       )
+       ​		外键列
+       
+       ​		constraint 外键名称 forengn key （外键列名称） references 主表名称（主表列名称）
+       
+       )；
+     
+  2. 删除外键
+  
+     ALTER TABLE 表名 DROP FOREIGN KEY 外键名称；
+  
+  3. 创建表之后，添加外键
+  
+     ALTER TABLE 表名 ADD CONSTRAINT 外键名称 FOREIGN KEY （外键列名称） REFERENCES 主表名称（主表列名称）；
+  
+  4. 级联操作
+  
+     1. 添加级联操作
+  
+        * 语法：
+  
+          ALTER TABLE 表名 ADD CONSTRAINT 外键名称 FOREIGN KEY (外键列名称) REFERENCES 主表名称（主表列名称） ON UPDATE CASCADE ON DELETE CASCADE;
+  
+     2. 分类：
+  
+        1. 级联更新：ON UPDATE CASCADE
+        2. 级联删除：ON DELETE CASCADE
